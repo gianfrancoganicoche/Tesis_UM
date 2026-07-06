@@ -1,0 +1,28 @@
+# Datos crudos y procesados (pesados, reproducibles desde el pipeline)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Cache de kagglehub
+.cache/
+*.cache
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# Archivos temporales de Word/Office
+~$*.docx
+~$*.doc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Positron / VS Code
+.vscode/
+.positron/
