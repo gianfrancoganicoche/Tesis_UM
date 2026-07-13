@@ -1,6 +1,7 @@
 # Tesis de Maestría — Predicción de desarrollo de jugadores jóvenes de fútbol
 
 **Aislando el rendimiento individual del contexto de equipo y liga**
+
 *Gianfranco Ganicoche — Maestría en Ciencia de Datos, Universidad de Montevideo*
 
 ## Tema
