@@ -74,6 +74,23 @@ Actualizar este archivo cada vez que aparezca una fuente nueva relevante.
 - *Plus-Minus Soccer.* arXiv:1706.04943. https://arxiv.org/abs/1706.04943
 - *Large Event Models.* arXiv:2402.06815. https://arxiv.org/abs/2402.06815
 
+## Estabilidad temporal de métricas de rendimiento (persistencia de habilidad)
+
+- Sidorowicz, H. (2026). *Year-to-Year Metric Stability in Elite Football: A Positional
+  Analysis Across the Big Five European Leagues.* SportRxiv (preprint).
+  https://sportrxiv.org/index.php/server/preprint/view/954
+  Panel de 8.207 pares jugador-temporada (2017/18-2024/25, 2.866 jugadores únicos, 5
+  grandes ligas). Mide correlación de Pearson e ICC año a año para 24 combinaciones
+  posición-métrica. Hallazgo clave para esta tesis: **los jugadores sub-23 son
+  sistemáticamente menos estables año a año que los veteranos en 18 de 24
+  combinaciones testeadas (p < 0.05)** — evidencia académica directa a favor de tratar
+  la persistencia de habilidad relativa (α_i) como hipótesis testeable y no como
+  supuesto ciego en el enfoque de descomposición/recomposición (ver
+  `docs/hipotesis_y_diseno_v2.md`, sección 3.1). También reporta que el % de pases
+  completados es la métrica más estable en general (r = 0.824) y que todas las
+  combinaciones se degradan a horizonte de dos años — relevante para la discusión de
+  drift temporal y elección de horizonte de predicción.
+
 ## Fuente de datos
 
 - Dataset: `davidcariboo/player-scores` (Kaggle) — https://www.kaggle.com/datasets/davidcariboo/player-scores
