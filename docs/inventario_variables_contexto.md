@@ -1,81 +1,53 @@
 # Inventario de variables de contexto
 
-*Consolida el punto 3 de la devolución de Alan más los factores adicionales identificados en sesión. Sirve de checklist para la construcción de features en `src/panel_pipeline.py`.*
+*Consolida el punto 3 de la devolución de Alan más los factores adicionales identificados en sesión. Actualizado con el esquema real de `player-scores` (verificado en sesión).*
 
 ## Leyenda de estado
-- ✅ **Disponible directo** — el campo existe en el dataset, solo hay que incorporarlo.
-- 🔨 **Construible** — no existe como campo directo, pero se arma con una agregación sobre tablas existentes.
-- ⚠️ **Verificar** — puede existir, no confirmado; requiere chequeo de esquema antes de decidir.
-- ❌ **No disponible** — no está en `player-scores`; queda como limitación reconocida o trabajo futuro.
-- 🔁 **Ya cubierto en otra parte** — no duplicar, referenciar la sección existente.
-- ⏸ **Pendiente, otra sesión** — se resuelve junto con la validez entre ligas concentradas.
+- ✅ **Disponible directo** — el campo existe, solo hay que incorporarlo.
+- 🔨 **Construible** — se arma con una agregación/cruce sobre tablas existentes.
+- ⚠️ **Ojo con la temporalidad** — el campo existe pero puede ser un snapshot actual, no histórico por temporada — requiere verificación adicional antes de usarlo tal cual.
+- ❌ **No disponible** — no está en `player-scores`.
+- 🔁 **Ya cubierto en otra parte** — no duplicar.
+- ⏸ **Pendiente, otra sesión** — va con la validez entre ligas concentradas.
 
-## Tabla de factores
+## Tabla de factores (actualizada con esquema real)
 
-| # | Factor | Origen | Estado | Tabla(s) / campo(s) fuente |
-|---|---|---|---|---|
-| 1 | Liga (nivel/tipo de competencia) | Alan | ✅ | `competitions.csv` |
-| 2 | Equipo (identidad, efecto club-temporada) | Alan | ✅ | `clubs.csv` — `club_id` |
-| 3 | Calidad del plantel (valor total, edad promedio) | Alan | 🔨 | Agregación de `player_valuations.csv` por `club_id` + temporada |
-| 4 | Compañeros de plantel (valor promedio, experiencia internacional) | Alan | 🔨 | `game_lineups.csv` + `player_valuations.csv` |
-| 5 | Participación en competencias internacionales de club | Alan | 🔨 | `competitions.csv` + `games.csv` (flags de Champions/Europa/Conference) |
-| 6 | Objetivos deportivos (posición en tabla, puntos, diferencia de gol) | Alan | 🔨 | `games.csv` + `club_games.csv` |
-| 7 | Fortaleza de rivales / calendario ponderado | Alan | ⏸ | `games.csv` (club rival) + valor de plantel rival — va con la sesión de ligas concentradas |
-| 8 | Participación en selección / torneos internacionales | Alan | 🔁 | Ya tratado en `justificacion_variable_dependiente.md`, sección 8 (shocks de torneos) |
-| 9 | Entrenador | Alan | ❌ | No está en el dataset |
-| 10 | Sistema táctico | Alan | ❌ | No está en el dataset |
-| 11 | Reputación de club como "vendedor" de jóvenes | Sesión | 🔨 | `transfers.csv` — % de sub-23 transferidos a ligas top en los últimos N años, por club |
-| 12 | Competencia interna por el puesto (profundidad de plantel en esa posición) | Sesión | 🔨 | `game_lineups.csv` + `position` |
-| 13 | Situación contractual (años restantes de contrato) | Sesión | ⚠️ | `players.csv` — chequear si existe `contract_expiration_date` o similar |
-| 14 | Pertenencia a grupo multi-club (City Group, Red Bull, etc.) | Sesión | ❌ | Requiere mapeo externo manual club→grupo, no está en el dataset |
-| 15 | Continuidad del cuerpo técnico (cambios de entrenador en la temporada) | Sesión | ❌ | No está en el dataset |
+| # | Factor | Estado | Campo(s) fuente confirmados |
+|---|---|---|---|
+| 1 | Liga (nivel/tipo) | ✅ | `competitions.csv`: `type`, `sub_type`, `confederation` |
+| 2 | Equipo (identidad, efecto club-temporada) | ✅ | `clubs.csv` / `player_valuations.csv`: `club_id` |
+| 3 | Calidad del plantel (valor, edad, extranjeros) | ✅ **CONSTRUIDA** | `clubs.csv`: `total_market_value`, `average_age`, `foreigners_number`, `foreigners_percentage`, `national_team_players`, `squad_size` — **pero `clubs.csv` tiene `last_season`, sugiere snapshot actual, no panel histórico.** Para calidad de plantel *por temporada pasada*, construir agregando `player_valuations.csv` por `club_id` + año, no usar los campos de `clubs.csv` directamente. |
+| 4 | Compañeros de plantel | ✅ **CONSTRUIDA** (leave-one-out, validada con Haaland) | `game_lineups.csv` (`club_id`, `player_id`, `date`) + `player_valuations.csv` cruzado por fecha más cercana |
+| 5 | Participación en competencias internacionales de club | ✅ **CONSTRUIDA** | `games.csv`: `competition_type` (categoriza el tipo de partido directamente) + `competition_id` → `competitions.csv` |
+| 6 | Objetivos deportivos (posición, resultado) | ✅ **CONSTRUIDA** | `club_games.csv`: `own_position`, `opponent_position`, `is_win`, `own_goals`/`opponent_goals` — agregación directa por club-temporada |
+| 7 | Fortaleza de rivales | ⏸ **Reformulado** — ya no es fase 2 separada, pasa a ser interacción liga×contexto dentro del test de H1 (ver `hipotesis_y_diseno_v2.md`, sección 4) | `club_games.csv`: `opponent_id`, `opponent_position` — base lista, tratamiento completo en sesión de ligas |
+| 8 | Participación en selección | 🔁 | Ya tratado en `justificacion_variable_dependiente.md` — campos disponibles si hace falta retomarlo: `players.csv`: `international_caps`, `international_goals`, `current_national_team_id` |
+| 9 | Entrenador (identidad, continuidad) | ✅ **CONSTRUIDA** (antes ❌) | `games.csv`: `home_club_manager_name` / `away_club_manager_name` (por partido, histórico); `club_games.csv`: `own_manager_name`. Permite construir "cambios de entrenador en la temporada" sin depender del snapshot de `clubs.csv: coach_name` |
+| 10 | Sistema táctico | ✅ **CONSTRUIDA, con advertencia de confiabilidad** (antes ❌) | `games.csv`: `home_club_formation` / `away_club_formation` (ej. "4-3-3") — disponible por partido, se puede agregar a formación predominante por club-temporada |
+| 11 | Reputación de club vendedor | ✅ **CONSTRUIDA** (score continuo 4.2% cobertura + flag binario 46.8% cobertura) | `transfers.csv`: `from_club_id`, `to_club_id`, `transfer_fee`, `transfer_date` |
+| 12 | Competencia interna por el puesto | ✅ **CONSTRUIDA** | `game_lineups.csv`: `position` (por alineación/partido, no solo la posición "principal" estática de `players.csv`) |
+| 13 | Situación contractual | ✅ **(antes ⚠️, ya confirmado)** | `players.csv`: `contract_expiration_date` — directo, sin construir nada |
+| 14 | Pertenencia a grupo multi-club | ❌ | No está en el dataset, requiere mapeo externo manual |
+| 15 | Continuidad del cuerpo técnico | 🔨 **(antes ❌)** | Misma fuente que #9 — cambios de `manager_name` a lo largo de la temporada |
 
-## Resumen por estado
+## Hallazgo importante fuera de la lista original
 
-- **Disponibles directos (2):** liga, equipo — ya usados en el modelo de efectos fijos actual.
-- **Construibles esta iteración (6):** calidad del plantel, compañeros, competencias internacionales, objetivos deportivos, reputación de club vendedor, competencia interna por puesto.
-- **A verificar (1):** situación contractual — primer paso antes de construir nada.
-- **No disponibles (3):** entrenador, sistema táctico, pertenencia a grupo multi-club, continuidad técnica — quedan documentados como limitación reconocida, con la salvedad de que el efecto de club-temporada (factor #2) los absorbe de forma indirecta y no explicada (ver `hipotesis_y_diseno_v2.md`, discusión de la estructura de dos capas).
-- **Pendiente para la sesión de ligas (1):** fortaleza de rivales.
-- **Ya cubierto en otra parte (1):** participación en selección.
+`game_lineups.csv` tiene `position` **a nivel de partido**, no solo la posición "principal" fija de `players.csv`. Esto resuelve directamente el chequeo pendiente del punto 5 de la devolución de Alan (cambios de posición entre T y T+3, ver `hipotesis_y_diseno_v2.md`) — ya no hace falta inferirlo indirectamente, se puede medir cuántas veces un jugador jugó en una posición distinta a su posición "principal" declarada, partido a partido.
 
-## Paso 0 — Verificar esquema real antes de construir nada
+## Estado final (cierre, 13/07/2026)
 
-Antes de escribir cualquier función de feature engineering, correr esto para confirmar qué columnas existen realmente (los nombres de campo pueden diferir de lo asumido, y el punto 13 depende enteramente de este chequeo):
+**8 de 8 variables de contexto construidas y validadas** en `src/construir_variables_contexto.py`: objetivos deportivos, calidad de plantel, competencias internacionales, continuidad técnica, sistema táctico, competencia interna por puesto, reputación de club vendedor (score + flag), compañeros de plantel. Cada una con reconocimiento de datos previo, validación cualitativa contra casos futbolísticos conocidos, y documentación in-code de cada decisión y bug encontrado.
 
-```python
-import pandas as pd
-import kagglehub
+**Variables de rendimiento individual** (distintas conceptualmente — entorno vs. rendimiento propio del jugador): 6 candidatas planificadas en `src/construir_variables_rendimiento.py`, **ninguna corrida ni validada todavía**. Ver `docs/diccionario_variables.md` para el listado completo y unificado de variables de contexto + rendimiento + atributos, con estado de cada una.
 
-path = kagglehub.dataset_download("davidcariboo/player-scores")
+- **No disponible, sin resolver (1):** pertenencia a grupo multi-club.
+- **Reformulado (1):** fortaleza de rivales — ya no es fase 2 separada, pasa a ser interacción liga×contexto dentro del test de H1 (`hipotesis_y_diseno_v2.md`, sección 4).
+- **Ya cubierto en otra parte (1):** participación en selección (`justificacion_variable_dependiente.md`).
 
-tablas = [
-    "players", "clubs", "competitions", "games",
-    "club_games", "game_lineups", "appearances", "transfers",
-    "player_valuations",
-]
+De los 15 factores originales de este inventario, terminan **13 resueltos o reformulados**, solo **1 fuera de alcance real** (grupo multi-club).
 
-for nombre in tablas:
-    try:
-        df = pd.read_csv(f"{path}/{nombre}.csv", nrows=5)
-        print(f"\n=== {nombre}.csv ===")
-        print(list(df.columns))
-    except FileNotFoundError:
-        print(f"\n=== {nombre}.csv NO EXISTE ===")
-```
+## Próximo paso
 
-Prestar especial atención a:
-- `players.csv` → ¿existe algún campo de vencimiento/duración de contrato? (resuelve el punto 13)
-- `games.csv` / `club_games.csv` → nombres exactos de campos de competencia (para identificar Champions/Europa/Conference, punto 5) y de resultado (para puntos/posición en tabla, punto 6)
-- `game_lineups.csv` → si tiene `position` a nivel de alineación (no solo la posición "principal" de `players.csv`) — sería una vía directa para el chequeo de cambio de posición que quedó pendiente del punto 5 de Alan
+Correr, validar y depurar `src/construir_variables_rendimiento.py` con el mismo patrón usado para el script de contexto (reconocimiento → construcción → validación cualitativa → piso de confiabilidad donde corresponda) — es plan, no trabajo terminado.
 
-## Paso 1 — Orden sugerido de construcción (de más simple a más compleja)
-
-1. **Objetivos deportivos** (#6) — es agregación directa de resultados de partidos, no requiere cruces complejos.
-2. **Calidad del plantel** (#3) — agregación de valuaciones por club-temporada, ya tenés la lógica de agregación de valores en el pipeline actual.
-3. **Participación en competencias internacionales** (#5) — depende de cómo esté codificado el tipo de competencia en `competitions.csv`/`games.csv`, a confirmar en el Paso 0.
-4. **Competencia interna por el puesto** (#12) — requiere cruzar alineaciones con posición amplia, similar a lo que ya usamos para la densidad edad×posición.
-5. **Compañeros de plantel** (#4) — más laboriosa, requiere alinear jugador-temporada con el resto de la plantilla que compartió cancha.
-6. **Reputación de club vendedor** (#11) — la más laboriosa, requiere una ventana móvil de N años sobre `transfers.csv` por club.
-
-¿Empezamos corriendo el Paso 0 para confirmar el esquema real, o preferís que ya te arme el esqueleto de función para la primera variable (objetivos deportivos) asumiendo los nombres de campo típicos de este dataset, y lo ajustamos si el esquema difiere?
+¿Arrancamos con el código de la primera variable (objetivos deportivos, la más simple y directa), o preferís que te arme el esqueleto completo de las 10 funciones antes de empezar a correr nada?

@@ -790,6 +790,61 @@ def construir_flag_club_vendedor(transfers, players, mapa_club_liga, score_prest
     return completo
 
 
+# ---------------------------------------------------------------------------
+# Variable 8 - Companieros de plantel (valor promedio, leave-one-out)
+# Estado: CONSTRUIDA Y VALIDADA. Ultima de las 8 variables planificadas.
+# Reutiliza reconstruir_club_historico (mismo mecanismo ya validado para
+# calidad_plantel) -- no requirio resolver nada nuevo en terminos de datos,
+# solo el ajuste leave-one-out.
+#
+# Solo 2.97% de los casos quedan sin companieros calculables (jugador unico
+# valuado en su club esa temporada) -- cobertura mejor de lo esperado dado
+# el 44.4% de NaN en la reconstruccion de club historico base.
+#
+# Validado con Haaland: trayectoria de companieros_valor_promedio coherente
+# con su historial real (Salzburg ~13-17M -> Dortmund ~57-67M -> Man City
+# ~86-118M, saltos que coinciden con el nivel real de cada plantel). Un
+# valor puntual mas bajo en la ultima fila (61M, dic 2025) coincide con una
+# caida de companieros_distintos (22 vs 28-29 en filas previas) -- ruido de
+# cobertura puntual del snapshot de esa fecha, no un error de la formula.
+# ---------------------------------------------------------------------------
+
+def construir_companieros_plantel(player_valuations, transfers, appearances,
+                                   anio_min=ANIO_MIN_COBERTURA):
+    """
+    Valor promedio de los companeros de plantel de cada jugador, en el
+    momento de cada valuacion -- leave-one-out sobre calidad_plantel
+    (excluye al propio jugador del promedio, para no inflar la medida de
+    contexto con el valor del jugador mismo).
+    """
+    reconstruido = reconstruir_club_historico(player_valuations, transfers, appearances)
+    reconstruido["anio"] = derivar_season_desde_fecha(reconstruido["date"])
+    reconstruido = reconstruido[reconstruido["anio"] >= anio_min]
+    reconstruido = reconstruido.dropna(subset=["club_id_final"])
+
+    agregado_plantel = reconstruido.groupby(["club_id_final", "anio"]).agg(
+        valor_total_plantel=("market_value_in_eur", "sum"),
+        jugadores_plantel=("player_id", "nunique"),
+    ).reset_index()
+
+    resultado = reconstruido.merge(agregado_plantel, on=["club_id_final", "anio"])
+
+    resultado["valor_companieros_total"] = resultado["valor_total_plantel"] - resultado["market_value_in_eur"]
+    resultado["companieros_distintos"] = resultado["jugadores_plantel"] - 1
+
+    sin_companieros = resultado["companieros_distintos"] == 0
+    resultado["companieros_valor_promedio"] = None
+    resultado.loc[~sin_companieros, "companieros_valor_promedio"] = (
+        resultado.loc[~sin_companieros, "valor_companieros_total"] /
+        resultado.loc[~sin_companieros, "companieros_distintos"]
+    )
+
+    return resultado[[
+        "player_id", "date", "club_id_final", "anio",
+        "companieros_valor_promedio", "companieros_distintos"
+    ]]
+
+
 if __name__ == "__main__":
     tablas = cargar_tablas()
 
@@ -855,3 +910,9 @@ if __name__ == "__main__":
     )
     print("\nflag_club_vendedor:", flag_vendedor.shape)
     print("tasa de club_vendedor_reconocido=True:", flag_vendedor["club_vendedor_reconocido"].mean())
+
+    companieros = construir_companieros_plantel(
+        tablas["player_valuations"], tablas["transfers"], tablas["appearances"]
+    )
+    print("\ncompanieros_plantel:", companieros.shape)
+    print("fraccion sin companieros calculables:", (companieros["companieros_distintos"] == 0).mean())
