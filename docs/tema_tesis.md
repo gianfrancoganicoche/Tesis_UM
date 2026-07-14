@@ -2,6 +2,7 @@
 
 **Predicción de desarrollo de jugadores jóvenes de fútbol**
 Aislando el rendimiento individual del contexto de equipo y liga
+
 *Gianfranco Ganicoche*
 
 > **Pregunta de investigación central**
