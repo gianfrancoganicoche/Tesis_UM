@@ -1,0 +1,31 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# --- Datos: no van a git (Kaggle pesa GBs; se regeneran con d01 + d06) ---
+data/raw/
+data/processed/*
+# ...salvo los parametros ajustados (chicos y necesarios para reproducir el pipeline):
+!data/processed/parametros_*.json
+
+# --- Trazas de modelos (cientos de MB) ---
+*.nc
+*.pkl
+*.pickle
+
+# --- Secretos / credenciales ---
+.env
+kaggle.json
+
+# --- Basura del sistema y de Office ---
+~$*
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/

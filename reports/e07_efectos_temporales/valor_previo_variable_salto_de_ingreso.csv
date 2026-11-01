@@ -1,0 +1,11 @@
+n;media_delta_log;mediana_delta_log;p25;p75;banda_edad;grupo;crecimiento_medio_pct
+1224,0;1,095;0,9163;0,2814;1,6094;<20;primera fila (ingreso);198,911
+1350,0;0,8544;0,6931;0,0;1,3863;<20;ya estaba en el panel;135,0007
+4366,0;0,7463;0,5596;0,0;1,2528;20-22;primera fila (ingreso);110,9094
+9726,0;0,4041;0,2412;-0,069;0,6931;20-22;ya estaba en el panel;49,7906
+4640,0;0,3899;0,2624;-0,0334;0,734;23-26;primera fila (ingreso);47,6777
+21861,0;0,1124;0,0;-0,2231;0,4055;23-26;ya estaba en el panel;11,898
+2124,0;0,1242;0,0;-0,2231;0,4055;27-30;primera fila (ingreso);13,228
+20115,0;-0,0998;-0,1178;-0,3677;0,1335;27-30;ya estaba en el panel;-9,4944
+711,0;-0,1312;-0,1542;-0,4055;0,0;31+;primera fila (ingreso);-12,2954
+13688,0;-0,3856;-0,3567;-0,6931;-0,1054;31+;ya estaba en el panel;-31,9956

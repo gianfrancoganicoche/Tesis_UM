@@ -1,0 +1,4 @@
+capa,filas,jugadores,clubes,temporada_min,temporada_max,filas_por_jugador_media,filas_por_jugador_mediana,jugadores_con_2mas_filas,pct_jugadores_con_2mas_filas,filas_con_par_consecutivo
+capa1_curva_edad,87054,24914,451,2012,2025,3.494179979128201,2.0,16556,66.45259693345108,54265
+capa2_sub23,21910,11779,450,2012,2025,1.8600899906613464,1.0,5696,48.3572459461754,9096
+capa3_h1,21910,11779,450,2012,2025,1.8600899906613464,1.0,5696,48.3572459461754,9096

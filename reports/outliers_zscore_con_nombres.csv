@@ -1,0 +1,97 @@
+variable;jugador;player_id;season;posicion_amplia_predominante;club_id;club;minutos_totales;partidos_jugados;valor_efectivo;z
+goles_90;Asmir Begovic;33873;2013;arquero;512;Stoke City;2880;32;0,03125;20,904599443766617
+goles_90;Igor Leshchuk;168527;2024;arquero;121;FK Dinamo Moskva;370;5;0,2432432432432432;20,776989552942997
+goles_90;Tom Vandenberghe;387990;2023;arquero;601;KV Kortrijk;1890;21;0,0476190476190476;20,71237118694079
+goles_90;Alberto Brignoli;146799;2017;arquero;4171;Benevento Calcio;1124;13;0,0800711743772242;20,518342137370503
+goles_90;Erik Cummins;173674;2014;arquero;1435;Go Ahead Eagles;1080;12;0,0833333333333333;18,427785329584285
+goles_90;Ronald Koeman Jr.;271549;2025;arquero;1434;SC Telstar;2959;33;0,0304156809733017;14,741415954039967
+goles_90;Andreas Gianniotis;226802;2025;arquero;10484;Kasimpasa;2970;33;0,0303030303030303;14,686566982312842
+goles_90;William Dutoit;156384;2015;arquero;475;Sint-Truidense VV;2394;27;0,037593984962406;13,781676869086319
+goles_90;Joel Pohjanpalo;173491;2016;delantero;15;Bayer 04 Leverkusen;185;11;2,9189189189189197;11,267859515872518
+goles_90;Alex Teixeira;66515;2015;mediocampista;660;FC Shakhtar Donetsk;1350;15;1,4666666666666666;11,167410568064179
+goles_90;Martin Hansen;45601;2015;arquero;1268;ADO Den Haag;2970;33;0,0303030303030303;11,092904538629542
+goles_90;Steffen Rasmussen;22923;2015;arquero;678;Aarhus GF;2970;33;0,0303030303030303;11,092904538629542
+goles_90;Mikael Lustig;36025;2014;defensor;371;Celtic FC;270;5;0,6666666666666666;10,981428921474194
+goles_90;Adama Traoré;262608;2017;mediocampista;162;AS Monaco;188;3;1,4361702127659577;10,747402569718108
+goles_90;Arnaud Bodart;417278;2020;arquero;3057;Standard Liège;2970;33;0,0303030303030303;10,627418024081766
+goles_90;Alisson;105470;2020;arquero;31;Liverpool FC;2970;33;0,0303030303030303;10,627418024081766
+goles_90;Yassine Bounou;207834;2020;arquero;368;Sevilla FC;2970;33;0,0303030303030303;10,627418024081766
+goles_90;Fábio Nunes;138350;2017;defensor;5219;AOK Kerkyra;415;8;0,6506024096385543;10,453372901675133
+goles_90;Marko Dmitrovic;94308;2020;arquero;1533;SD Eibar;3121;35;0,0288369112463953;10,10864665934212
+goles_90;Lorenzo Tonelli;111347;2016;defensor;6195;SSC Napoli;270;3;0,6666666666666666;9,95185068167466
+goles_90;Jeppe Simonsen;331975;2015;defensor;5817;Sönderjyske Fodbold;295;13;0,6101694915254238;9,697538714465555
+goles_90;Alexander Jeremejeff;205760;2023;delantero;265;Panathinaikos Athlitikos Omilos;246;10;2,5609756097560976;9,581459640873407
+goles_90;Justin Hoogma;411287;2024;defensor;1304;Heracles Almelo;250;9;0,72;9,479378069587058
+goles_90;Viktor Kovalenko;203842;2020;mediocampista;660;FC Shakhtar Donetsk;290;9;1,2413793103448276;8,924682595017343
+goles_90;Boschilia;288496;2016;mediocampista;162;AS Monaco;437;11;1,2356979405034323;8,837339604041324
+goles_90;Marwin Hitz;59238;2014;arquero;167;FC Augsburg;2250;25;0,04;8,811450827096456
+goles_90;Juanma Herzog;1146029;2023;defensor;472;UD Las Palmas;291;4;0,6185567010309279;8,796445904371263
+goles_90;Lionel Messi;28003;2012;;131;FC Barcelona;2626;32;1,5765422696115765;8,57419814333204
+goles_90;Juan Cabal;686965;2025;defensor;506;Juventus FC;286;12;0,6293706293706294;8,111813006404827
+goles_90;Ryan Sessegnon;392775;2024;defensor;931;Fulham FC;580;16;0,6206896551724138;8,089162230477962
+asistencias_90;Rafael;84467;2020;arquero;3522;Spezia Calcio;206;3;0,4368932038834952;19,75519893621542
+asistencias_90;Mykyta Shevchenko;80312;2016;arquero;660;FC Shakhtar Donetsk;180;2;0,5;19,71798357947197
+asistencias_90;Yaroslav Protsenko;917809;2025;arquero;55686;TOV FK Metalist 1925 Kharkiv;180;2;0,5;17,213618506810413
+asistencias_90;Jens Grahl;40034;2023;arquero;24;Eintracht Frankfurt;180;2;0,5;15,365570389204953
+asistencias_90;Wouter van der Steen;159896;2017;arquero;306;SC Heerenveen;296;4;0,304054054054054;15,184069625471814
+asistencias_90;Ørjan Nyland;73517;2022;arquero;23826;RB Leipzig;180;2;0,5;14,074012320762867
+asistencias_90;Rafa;870187;2022;arquero;2420;Vitória Guimarães SC;180;2;0,5;14,074012320762867
+asistencias_90;Óscar Whalley;260662;2019;arquero;678;Aarhus GF;270;3;0,3333333333333333;13,199240133540387
+asistencias_90;Yukhym Konoplya;467250;2021;defensor;660;FC Shakhtar Donetsk;392;9;1,1479591836734695;12,854278486254481
+asistencias_90;Adam Collin;3564;2015;arquero;370;Aberdeen FC;270;3;0,3333333333333333;12,032799198084156
+asistencias_90;Artem Kychak;88879;2015;arquero;4482;Volyn Lutsk;270;3;0,3333333333333333;12,032799198084156
+asistencias_90;Lovre Kalinic;46405;2018;arquero;157;KAA Gent;1215;14;0,074074074074074;11,209371657970944
+asistencias_90;Oliver Villadsen;462838;2024;defensor;2778;FC Nordsjaelland;249;4;1,0843373493975903;11,052088752096633
+asistencias_90;Kyle Walker-Peters;341051;2017;defensor;148;Tottenham Hotspur;188;3;0,9574468085106382;10,753073175736517
+asistencias_90;Arthur;977464;2023;defensor;15;Bayer 04 Leverkusen;183;4;0,9836065573770492;10,287148214110966
+asistencias_90;Mykyta Kamenyuka;58238;2019;defensor;10690;Zorya Lugansk;289;6;0,9342560553633218;10,136416121341764
+asistencias_90;Ederson;238223;2024;arquero;281;Manchester City;2321;26;0,1551055579491598;9,89137913933218
+asistencias_90;Andrés Fernández;57522;2019;arquero;1050;Villarreal CF;360;4;0,25;9,854864751066746
+asistencias_90;Jan Bernat;344311;2022;mediocampista;968;KVC Westerlo;195;6;1,3846153846153848;9,85421484449902
+asistencias_90;Sergiy Gorbunov;288853;2022;defensor;60551;SC Dnipro-1;191;5;0,9424083769633508;9,852256610959195
+asistencias_90;Yassin Ayoub;182573;2018;mediocampista;234;Feyenoord Rotterdam;215;16;1,255813953488372;9,632674148181712
+asistencias_90;Ryoya Ogawa;353785;2023;defensor;475;Sint-Truidense VV;198;4;0,9090909090909092;9,459636077143898
+asistencias_90;Adel Taarabt;45287;2016;mediocampista;252;Genoa CFC;209;6;1,2918660287081338;9,289657439800308
+asistencias_90;Pablo Aimar;3411;2012;;294;SL Benfica;209;13;1,2918660287081338;9,18957271594487
+asistencias_90;Arsen Adamov;455016;2022;defensor;964;AO FK Zenit Sankt-Peterburg;205;9;0,8780487804878049;9,139338749694167
+asistencias_90;Andriy Lunin;404839;2024;arquero;418;Real Madrid;630;7;0,1428571428571428;9,09099692326385
+asistencias_90;Uğurcan Çakır;292199;2017;arquero;449;Trabzonspor;495;6;0,1818181818181818;9,020290308064299
+asistencias_90;Sebastián Leto;39256;2015;delantero;265;Panathinaikos Athlitikos Omilos;396;6;1,5909090909090908;9,012374331906468
+asistencias_90;Johan Dahlin;41653;2015;arquero;865;FC Midtjylland;360;4;0,25;8,989135210181272
+asistencias_90;Ki-Jana Hoever;485583;2022;defensor;383;PSV Eindhoven;209;5;0,8612440191387559;8,953190682022779
+asistencias_90;Vieirinha;35247;2024;defensor;1091;Panthessalonikios Athlitikos Omilos Konstantinoupoliton;204;8;0,8823529411764706;8,879615938029026
+asistencias_90;Isaac Lihadji;557610;2021;delantero;1082;LOSC Lille;228;13;1,5789473684210529;8,872006112887927
+asistencias_90;Rasmus Carstensen;542697;2022;defensor;1177;Silkeborg IF;317;7;0,8517350157728707;8,847858474961091
+asistencias_90;Jamie Langfield;12817;2013;arquero;370;Aberdeen FC;3285;37;0,0821917808219178;8,837616911399188
+asistencias_90;Kieran Trippier;95810;2016;defensor;148;Tottenham Hotspur;566;12;0,7950530035335689;8,714131863389698
+asistencias_90;Tolga Zengin;16816;2014;arquero;114;Beşiktaş Jimnastik Kulübü;1410;17;0,0638297872340425;8,568255870463041
+asistencias_90;Francesco Benussi;21829;2014;arquero;276;Hellas Verona;1421;16;0,0633356790992259;8,500559185697947
+asistencias_90;João Mário;537602;2020;defensor;720;FC Porto;371;14;0,7277628032345014;8,238912479519184
+asistencias_90;Derry Murkin;457341;2025;defensor;200;FC Utrecht;349;9;0,7736389684813754;8,14422485470303
+participacion_produccion;Yuriy Dyupin;228660;2018;arquero;2700;Anzhi Makhachkala ( -2022);2700;30;0,0769230769230769;14,551051840974683
+participacion_produccion;Artem Kychak;88879;2016;arquero;4482;Volyn Lutsk;1530;17;0,0588235294117647;10,922873497465897
+participacion_produccion;Boy Waterman;4391;2013;arquero;1506;Kardemir Karabükspor;3060;34;0,0606060606060606;10,02647720065574
+participacion_produccion;Günay Güvenç;114422;2022;arquero;2832;Gaziantep FK;2700;30;0,064516129032258;9,905506341841084
+participacion_produccion;Ögmundur Kristinsson;103444;2019;arquero;4603;Athlitiki Enosi Larisas;2340;26;0,0714285714285714;9,588660960795242
+participacion_produccion;Jamie Langfield;12817;2013;arquero;370;Aberdeen FC;3285;37;0,0566037735849056;9,351855764383933
+participacion_produccion;Remko Pasveer;25520;2019;arquero;499;Vitesse Arnhem;2340;26;0,0666666666666666;8,934326779970986
+participacion_produccion;Lefteris Choutesiotis;182682;2020;arquero;2671;PAS Giannina;1575;18;0,0434782608695652;8,774815933641385
+participacion_produccion;Nikita Medvedev;296513;2024;arquero;49702;FK Nizhny Novgorod;2520;28;0,074074074074074;8,624400083884934
+participacion_produccion;Jonas Lössl;48870;2018;arquero;1110;Huddersfield Town;2777;31;0,0454545454545454;8,540791645046317
+participacion_produccion;Filip Kurto;104376;2014;arquero;1455;FC Dordrecht;2841;32;0,0416666666666666;8,44013179318875
+participacion_produccion;Nikolaos Papadopoulos;169687;2017;arquero;3999;PAS Lamia 1964;2250;25;0,05;8,31667457582643
+participacion_produccion;Etienne Vaessen;387197;2021;arquero;235;RKC Waalwijk;2790;31;0,05;8,281436437594106
+participacion_produccion;Iván Cuéllar;27493;2015;arquero;2448;Sporting Gijón;2880;32;0,05;8,22577855852818
+participacion_produccion;Roman Gerus;24994;2014;arquero;4128;Amkar Perm;2430;27;0,04;8,095020509659193
+participacion_produccion;Karl-Johan Johnsson;112822;2016;arquero;855;EA Guingamp;3279;37;0,0434782608695652;8,025237561393327
+goles_recibidos_ajustados_90;Zurab Gigashvili;576983;2020;defensor;41201;PFK Tambov (-2021);480;8;3,851757532281205;8,304205203788324
+tarjetas_90;Jeriel de Santis;657791;2021;delantero;2503;Boavista FC;200;16;2,7;14,286408143548131
+tarjetas_90;Uche Ikpeazu;245765;2022;delantero;2293;Konyaspor;187;15;2,406417112299465;11,757137879445441
+tarjetas_90;Artem Vovkun;746397;2023;defensor;39097;Obolon Kyiv;278;9;1,9424460431654675;10,560415562840396
+tarjetas_90;Dimitrios Chantakias;342346;2018;defensor;6418;Panetolikos Agrinio;245;7;1,836734693877551;9,38352095148486
+tarjetas_90;Abdul Nurudeen;511168;2023;arquero;1245;KAS Eupen;180;2;1,0;8,89588349737521
+tarjetas_90;Oleksandr Mandzyuk;92635;2014;delantero;6993;FK Mariupol;223;8;1,6143497757847534;8,832271618134836
+tarjetas_90;Wallisson;742073;2023;mediocampista;979;Moreirense FC;192;11;1,875;8,69700690744498
+tarjetas_90;Jonathan Silva;189453;2021;defensor;3709;Getafe CF;220;9;1,6363636363636362;8,54619662552497
+tarjetas_90;John Jairo Mosquera;31108;2013;delantero;2424;Gil Vicente FC;214;11;1,6822429906542056;8,426482325336432
+tarjetas_90;Ramazan Keskin;330839;2018;mediocampista;20;Bursaspor;193;7;1,865284974093264;8,283424145605855

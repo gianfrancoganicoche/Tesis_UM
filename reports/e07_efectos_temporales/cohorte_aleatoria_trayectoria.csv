@@ -1,0 +1,97 @@
+ventana;grupo;temporada;n;acum_pct;acum_p05;acum_p95
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2012;500;0,0;0,0;0,0
+2012-2018;panel balanceado completo;2012;1082;0,0;;
+2012-2018;un sorteo concreto;2012;500;0,0;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2013;500;17,3281;14,6963;20,2432
+2012-2018;panel balanceado completo;2013;1082;17,3427;;
+2012-2018;un sorteo concreto;2013;500;17,9414;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2014;500;28,8945;24,5151;33,0224
+2012-2018;panel balanceado completo;2014;1082;28,7299;;
+2012-2018;un sorteo concreto;2014;500;27,9598;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2015;500;30,7008;25,2132;36,2796
+2012-2018;panel balanceado completo;2015;1082;30,6168;;
+2012-2018;un sorteo concreto;2015;500;31,3665;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2016;500;18,0335;11,6425;24,4794
+2012-2018;panel balanceado completo;2016;1082;18,0011;;
+2012-2018;un sorteo concreto;2016;500;19,6184;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2017;500;5,5099;-1,1186;12,1085
+2012-2018;panel balanceado completo;2017;1082;5,7096;;
+2012-2018;un sorteo concreto;2017;500;6,7194;;
+2012-2018;aleatorio (n=500, mediana de 200 sorteos);2018;500;-12,9246;-18,9383;-7,2006
+2012-2018;panel balanceado completo;2018;1082;-13,0132;;
+2012-2018;un sorteo concreto;2018;500;-9,1739;;
+2012-2018;edad al inicio <20;2012;85;0,0;;
+2012-2018;edad al inicio <20;2013;85;76,0015;;
+2012-2018;edad al inicio <20;2014;85;174,6937;;
+2012-2018;edad al inicio <20;2015;85;245,7356;;
+2012-2018;edad al inicio <20;2016;85;318,9949;;
+2012-2018;edad al inicio <20;2017;85;431,3866;;
+2012-2018;edad al inicio <20;2018;85;456,6937;;
+2012-2018;edad al inicio 20-22;2012;295;0,0;;
+2012-2018;edad al inicio 20-22;2013;295;39,7739;;
+2012-2018;edad al inicio 20-22;2014;295;71,6102;;
+2012-2018;edad al inicio 20-22;2015;295;95,5885;;
+2012-2018;edad al inicio 20-22;2016;295;108,7395;;
+2012-2018;edad al inicio 20-22;2017;295;117,3025;;
+2012-2018;edad al inicio 20-22;2018;295;111,8287;;
+2012-2018;edad al inicio 23-26;2012;469;0,0;;
+2012-2018;edad al inicio 23-26;2013;469;9,2776;;
+2012-2018;edad al inicio 23-26;2014;469;22,0018;;
+2012-2018;edad al inicio 23-26;2015;469;24,3688;;
+2012-2018;edad al inicio 23-26;2016;469;13,8091;;
+2012-2018;edad al inicio 23-26;2017;469;1,653;;
+2012-2018;edad al inicio 23-26;2018;469;-21,3186;;
+2012-2018;edad al inicio 27-30;2012;196;0,0;;
+2012-2018;edad al inicio 27-30;2013;196;-3,6988;;
+2012-2018;edad al inicio 27-30;2014;196;-19,0792;;
+2012-2018;edad al inicio 27-30;2015;196;-34,2179;;
+2012-2018;edad al inicio 27-30;2016;196;-57,2079;;
+2012-2018;edad al inicio 27-30;2017;196;-72,034;;
+2012-2018;edad al inicio 27-30;2018;196;-81,4369;;
+2012-2018;edad al inicio 31+;2012;35;0,0;;
+2012-2018;edad al inicio 31+;2013;35;-20,8642;;
+2012-2018;edad al inicio 31+;2014;35;-50,8464;;
+2012-2018;edad al inicio 31+;2015;35;-63,9599;;
+2012-2018;edad al inicio 31+;2016;35;-78,9779;;
+2012-2018;edad al inicio 31+;2017;35;-85,8606;;
+2012-2018;edad al inicio 31+;2018;35;-88,1551;;
+2021-2025;aleatorio (n=500, mediana de 200 sorteos);2021;500;0,0;0,0;0,0
+2021-2025;panel balanceado completo;2021;1846;0,0;;
+2021-2025;un sorteo concreto;2021;500;0,0;;
+2021-2025;aleatorio (n=500, mediana de 200 sorteos);2022;500;13,7792;9,7549;18,03
+2021-2025;panel balanceado completo;2022;1846;13,8342;;
+2021-2025;un sorteo concreto;2022;500;12,3204;;
+2021-2025;aleatorio (n=500, mediana de 200 sorteos);2023;500;13,2604;7,2143;19,471
+2021-2025;panel balanceado completo;2023;1846;13,4339;;
+2021-2025;un sorteo concreto;2023;500;13,3262;;
+2021-2025;aleatorio (n=500, mediana de 200 sorteos);2024;500;-2,5503;-8,775;4,1309
+2021-2025;panel balanceado completo;2024;1846;-2,2874;;
+2021-2025;un sorteo concreto;2024;500;-2,8635;;
+2021-2025;aleatorio (n=500, mediana de 200 sorteos);2025;500;-22,6154;-28,7024;-15,3031
+2021-2025;panel balanceado completo;2025;1846;-22,0837;;
+2021-2025;un sorteo concreto;2025;500;-20,7882;;
+2021-2025;edad al inicio <20;2021;120;0,0;;
+2021-2025;edad al inicio <20;2022;120;96,2898;;
+2021-2025;edad al inicio <20;2023;120;210,2495;;
+2021-2025;edad al inicio <20;2024;120;254,2117;;
+2021-2025;edad al inicio <20;2025;120;281,6862;;
+2021-2025;edad al inicio 20-22;2021;407;0,0;;
+2021-2025;edad al inicio 20-22;2022;407;50,2489;;
+2021-2025;edad al inicio 20-22;2023;407;87,2434;;
+2021-2025;edad al inicio 20-22;2024;407;105,0828;;
+2021-2025;edad al inicio 20-22;2025;407;102,513;;
+2021-2025;edad al inicio 23-26;2021;716;0,0;;
+2021-2025;edad al inicio 23-26;2022;716;10,0026;;
+2021-2025;edad al inicio 23-26;2023;716;14,9209;;
+2021-2025;edad al inicio 23-26;2024;716;1,9597;;
+2021-2025;edad al inicio 23-26;2025;716;-16,5401;;
+2021-2025;edad al inicio 27-30;2021;466;0,0;;
+2021-2025;edad al inicio 27-30;2022;466;-7,379;;
+2021-2025;edad al inicio 27-30;2023;466;-28,5268;;
+2021-2025;edad al inicio 27-30;2024;466;-51,4206;;
+2021-2025;edad al inicio 27-30;2025;466;-69,2167;;
+2021-2025;edad al inicio 31+;2021;137;0,0;;
+2021-2025;edad al inicio 31+;2022;137;-25,3082;;
+2021-2025;edad al inicio 31+;2023;137;-52,3427;;
+2021-2025;edad al inicio 31+;2024;137;-69,8508;;
+2021-2025;edad al inicio 31+;2025;137;-81,3505;;

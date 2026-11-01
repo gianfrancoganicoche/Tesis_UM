@@ -1,0 +1,16 @@
+posicion;variable;n;pearson_vs_dv;spearman_vs_dv
+todas;amarillas_90;79097;-0,0812;-0,0112
+todas;rojas_90;79097;-0,0271;0,0297
+todas;tarjetas_90_efectiva;79097;-0,0842;-0,0164
+arquero;amarillas_90;6289;-0,055;0,127
+arquero;rojas_90;6289;-0,0259;0,0317
+arquero;tarjetas_90_efectiva;6289;-0,0603;0,1193
+defensor;amarillas_90;24835;-0,0788;-0,0237
+defensor;rojas_90;24835;-0,0281;0,0269
+defensor;tarjetas_90_efectiva;24835;-0,0821;-0,0291
+delantero;amarillas_90;20456;-0,1313;-0,059
+delantero;rojas_90;20456;-0,0117;0,0454
+delantero;tarjetas_90_efectiva;20456;-0,1313;-0,062
+mediocampista;amarillas_90;22022;-0,124;-0,0759
+mediocampista;rojas_90;22022;-0,0394;0,0208
+mediocampista;tarjetas_90_efectiva;22022;-0,1283;-0,0811

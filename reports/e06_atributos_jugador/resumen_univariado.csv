@@ -1,0 +1,4 @@
+columna;tipo;n_no_nulos;pct_nulos;media;mediana;std;min;max
+altura_cm;numerica;89144;0,014;182,2858;183,0;6,6677;19,0;207,0
+pie_habil;categorica;88735;0,0185;;;;;
+es_comunitario;booleana;89629;0,0086;;;;;

@@ -1,0 +1,11 @@
+# Normaliza los saltos de linea del texto (el repo mezclaba CRLF y LF)
+* text=auto
+
+# Binarios: nunca tocar
+*.docx binary
+*.xlsx binary
+*.png binary
+*.parquet binary
+*.nc binary
+*.ttf binary
+*.otf binary

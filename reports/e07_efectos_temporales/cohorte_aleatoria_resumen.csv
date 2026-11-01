@@ -1,0 +1,15 @@
+ventana;grupo;n;acum_final_pct;deriva_anual_pct;pct_sin_cambio_medio
+2012-2018;panel balanceado completo;1082;-13,0132;-2,518;17,5293
+2012-2018;aleatorio (mediana de sorteos);500;-12,9246;-2,5232;
+2012-2018;edad al inicio <20;85;456,6937;32,0426;
+2012-2018;edad al inicio 20-22;295;111,8287;12,6298;
+2012-2018;edad al inicio 23-26;469;-21,3186;-3,2788;
+2012-2018;edad al inicio 27-30;196;-81,4369;-25,286;
+2012-2018;edad al inicio 31+;35;-88,1551;-31,7446;
+2021-2025;panel balanceado completo;1846;-22,0837;-6,31;12,7031
+2021-2025;aleatorio (mediana de sorteos);500;-22,6154;-6,4589;
+2021-2025;edad al inicio <20;120;281,6862;38,6685;
+2021-2025;edad al inicio 20-22;407;102,513;18,7961;
+2021-2025;edad al inicio 23-26;716;-16,5401;-4,281;
+2021-2025;edad al inicio 27-30;466;-69,2167;-25,9309;
+2021-2025;edad al inicio 31+;137;-81,3505;-34,727;

@@ -1,0 +1,13 @@
+grupo;ventana;n_temporadas;deriva_anual_pct;error_estandar_pct;deriva_anual_ajustada_edad_pct
+porteros;todas_las_temporadas;13;1,8144;0,5335;2,3413
+porteros;sin_pandemia_2019_2020;11;1,8376;0,5782;2,3693
+jugadores_de_campo;todas_las_temporadas;13;4,4263;0,5382;4,7766
+jugadores_de_campo;sin_pandemia_2019_2020;11;4,4787;0,5441;4,8139
+posicion=arquero;todas_las_temporadas;13;1,8144;0,5335;2,3413
+posicion=arquero;sin_pandemia_2019_2020;11;1,8376;0,5782;2,3693
+posicion=defensor;todas_las_temporadas;13;4,7451;0,5275;5,1147
+posicion=defensor;sin_pandemia_2019_2020;11;4,7946;0,5052;5,1521
+posicion=delantero;todas_las_temporadas;13;3,8899;0,6342;4,2777
+posicion=delantero;sin_pandemia_2019_2020;11;3,9754;0,606;4,3546
+posicion=mediocampista;todas_las_temporadas;13;4,5725;0,5447;4,8146
+posicion=mediocampista;sin_pandemia_2019_2020;11;4,5961;0,5912;4,8219
