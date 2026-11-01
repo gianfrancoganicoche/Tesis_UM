@@ -27,11 +27,11 @@ El proyecto busca separar la **calidad individual** de un jugador joven del **ef
 | Pipeline de datos (`d01`–`d09`) | Terminado |
 | Análisis exploratorio (`e01`–`e08`) | Terminado |
 | Dataset de modelado (`m01`) | Terminado |
-| Modelo base (`m02`) | Primera corrida rápida hecha (sin convergencia plena); corrida completa pendiente |
+| Modelo base (`m02`) | Terminado - En análisis |
 | Modelos siguientes (`m03`–`m06`) | Pendientes |
 | Redacción | Pendiente |
 
-**Próximos pasos:** corrida completa de `m02` (con `--muestreador nutpie`), efecto de temporada o γ_t (`m03`), validación cruzada agrupada por jugador y luego la variante autorregresiva.
+**Próximos pasos:** Análisis de `m02`, efecto de temporada o γ_t (`m03`), validación cruzada agrupada por jugador y luego la variante autorregresiva.
 
 ## Estructura del repositorio
 
