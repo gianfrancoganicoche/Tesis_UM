@@ -407,6 +407,9 @@ def main(argv=None):
     parser.add_argument("--grado-edad", type=int, default=2)
     parser.add_argument("--etiqueta", default=None, help="Nombre de la corrida (por defecto segun las opciones).")
     parser.add_argument("--objetivo-aceptacion", type=float, default=0.9)
+    parser.add_argument("--draws", type=int, default=None, help="Draws por cadena (por defecto 1000; 500 con --rapido).")
+    parser.add_argument("--tune", type=int, default=None, help="Iteraciones de adaptacion (por defecto 1000; 500 con --rapido).")
+    parser.add_argument("--cadenas", type=int, default=None, help="Cadenas (por defecto 4; 2 con --rapido).")
     parser.add_argument("--muestreador", choices=["pymc", "nutpie"], default="pymc",
                         help="nutpie no necesita compilador C++ (usa numba) y suele ser mucho mas rapido.")
     args, _ = parser.parse_known_args(argv)
@@ -427,6 +430,9 @@ def main(argv=None):
     modelo, P_edad, usar_temporada = construir_modelo(d, meta, args.grado_edad, args.temporada, args.verosimilitud)
 
     tune, draws, chains = (500, 500, 2) if args.rapido else (1000, 1000, 4)
+    tune = args.tune or tune
+    draws = args.draws or draws
+    chains = args.cadenas or chains
     print(f"\nMuestreo ({etiqueta}, {args.muestreador}): {chains} cadenas x ({tune} tune + {draws} draws)...")
     with modelo:
         kw_muestreo = {"nuts_sampler": "nutpie"} if args.muestreador == "nutpie" else {}
