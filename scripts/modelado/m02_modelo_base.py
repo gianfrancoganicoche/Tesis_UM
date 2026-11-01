@@ -252,7 +252,10 @@ def construir_modelo(d, meta, grado_edad, temporada, verosimilitud):
         intercepto = pm.Normal("intercepto", 0.0, 2.0)
         sigma_nivel = pm.HalfNormal("sigma_nivel_pos", 0.5)
         nivel_raw = pm.Normal("nivel_pos_raw", 0.0, 1.0, shape=n_pos)
-        nivel_pos = pm.Deterministic("nivel_pos", sigma_nivel * nivel_raw)
+        # Suma cero entre posiciones: sin esto `intercepto` y `nivel_pos` se pueden
+        # desplazar en sentido contrario sin cambiar la verosimilitud (no identificables).
+        # `intercepto` pasa a ser el nivel medio entre posiciones; las predicciones no cambian.
+        nivel_pos = pm.Deterministic("nivel_pos", sigma_nivel * (nivel_raw - nivel_raw.mean()))
 
         b_edad = pm.Normal("b_edad", 0.0, 0.5, shape=grado_edad)
         sigma_dev = pm.HalfNormal("sigma_dev_edad", 0.5, shape=grado_edad)
@@ -404,6 +407,8 @@ def main(argv=None):
     parser.add_argument("--grado-edad", type=int, default=2)
     parser.add_argument("--etiqueta", default=None, help="Nombre de la corrida (por defecto segun las opciones).")
     parser.add_argument("--objetivo-aceptacion", type=float, default=0.9)
+    parser.add_argument("--muestreador", choices=["pymc", "nutpie"], default="pymc",
+                        help="nutpie no necesita compilador C++ (usa numba) y suele ser mucho mas rapido.")
     args, _ = parser.parse_known_args(argv)
 
     import arviz as az
@@ -422,11 +427,12 @@ def main(argv=None):
     modelo, P_edad, usar_temporada = construir_modelo(d, meta, args.grado_edad, args.temporada, args.verosimilitud)
 
     tune, draws, chains = (500, 500, 2) if args.rapido else (1000, 1000, 4)
-    print(f"\nMuestreo ({etiqueta}): {chains} cadenas x ({tune} tune + {draws} draws)...")
+    print(f"\nMuestreo ({etiqueta}, {args.muestreador}): {chains} cadenas x ({tune} tune + {draws} draws)...")
     with modelo:
+        kw_muestreo = {"nuts_sampler": "nutpie"} if args.muestreador == "nutpie" else {}
         idata = pm.sample(
             draws=draws, tune=tune, chains=chains, target_accept=args.objetivo_aceptacion,
-            random_seed=SEMILLA,
+            random_seed=SEMILLA, **kw_muestreo,
         )
         try:
             idata = pm.compute_log_likelihood(idata, model=modelo, progressbar=False)

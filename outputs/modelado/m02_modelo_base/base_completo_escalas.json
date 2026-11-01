@@ -1,0 +1,99 @@
+{
+  "media_y": 13.904040887198612,
+  "posiciones": [
+    "arquero",
+    "defensor",
+    "delantero",
+    "mediocampista"
+  ],
+  "temporadas": [
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "n_jugadores": 10388,
+  "cols_ctx": [
+    "pca_exito_deportivo",
+    "companieros_valor_promedio",
+    "formaciones_distintas",
+    "fase_maxima_alcanzada"
+  ],
+  "cols_rend": [
+    "z_goles_90",
+    "z_asistencias_90",
+    "z_participacion_produccion",
+    "z_goles_recibidos_ajustados_90",
+    "z_edad_debut",
+    "z_amarillas_90",
+    "tuvo_roja",
+    "pocos_minutos",
+    "falta_z_edad_debut",
+    "falta_z_goles_recibidos_ajustados_90"
+  ],
+  "cols_atr": [
+    "z_altura_cm",
+    "es_comunitario",
+    "pie_both",
+    "pie_left"
+  ],
+  "pie_referencia": "pie_right",
+  "escalas": {
+    "pca_exito_deportivo": {
+      "media": 0.12588135373606496,
+      "desvio": 2.3568320915870222
+    },
+    "companieros_valor_promedio": {
+      "media": 9627057.624992035,
+      "desvio": 17177544.05700501
+    },
+    "formaciones_distintas": {
+      "media": 5.518403639371381,
+      "desvio": 2.646664101785314
+    },
+    "fase_maxima_alcanzada": {
+      "media": 0.8657464846980976,
+      "desvio": 1.471439282426324
+    },
+    "z_altura_cm": {
+      "media": -0.00500873019442807,
+      "desvio": 1.0024600786864504
+    }
+  },
+  "cascada": [
+    {
+      "paso": "dataset completo",
+      "filas": 90408,
+      "jugadores": 26297
+    },
+    {
+      "paso": "capa 3 (sub-23, primera division europea)",
+      "filas": 21910,
+      "jugadores": 11779
+    },
+    {
+      "paso": "sin las filas sin posicion",
+      "filas": 20408,
+      "jugadores": 11117
+    },
+    {
+      "paso": "con DV y edad",
+      "filas": 20408,
+      "jugadores": 11117
+    },
+    {
+      "paso": "sin faltantes en contexto/altura/pie/comunitario",
+      "filas": 19344,
+      "jugadores": 10388
+    }
+  ]
+}
