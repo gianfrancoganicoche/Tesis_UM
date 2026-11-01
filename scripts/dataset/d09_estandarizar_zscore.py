@@ -123,14 +123,17 @@ import config
 
 VARIABLES_A_ESTANDARIZAR = [
     "goles_90", "asistencias_90", "participacion_produccion",
-    "goles_recibidos_ajustados_90", "edad_debut", "tarjetas_90", "altura_cm",
+    "goles_recibidos_ajustados_90", "edad_debut", "amarillas_90", "altura_cm",
 ]
+# 31/10/2026: tarjetas_90 se reemplaza por amarillas_90 (las rojas pasan a ser una dummy,
+# tuvo_roja, que NO se estandariza: es binaria). El piso de confiabilidad y el piso
+# adicional de partidos/minutos son los mismos que tenia tarjetas_90.
 
 # Ver nota del modulo sobre por que esto se repite en vez de importarse de e01/e05.
 PISO_CONFIABILIDAD = {
     "goles_90": "minutos_confiables",
     "asistencias_90": "minutos_confiables",
-    "tarjetas_90": "minutos_confiables",
+    "amarillas_90": "minutos_confiables",
     "goles_recibidos_ajustados_90": "partidos_confiables_goles_ajustados",
     "edad_debut": "debut_confiable",
 }
@@ -139,7 +142,7 @@ PISO_CONFIABILIDAD = {
 # extra sobre PISO_CONFIABILIDAD, especifica de este script (no de e01/e05).
 VARIABLES_CON_PISO_PARTIDOS_ADICIONAL = [
     "goles_90", "asistencias_90", "participacion_produccion",
-    "goles_recibidos_ajustados_90", "tarjetas_90",
+    "goles_recibidos_ajustados_90", "amarillas_90",
 ]
 COLUMNA_PARTIDOS = "partidos_jugados"
 PISO_PARTIDOS_MINIMO = 2  # Gianfranco, 24/09: "subamos el piso a 2 partidos (180 minutos)"
@@ -313,6 +316,17 @@ def construir_zscore(dataset, forzar_reajuste=False):
     """
     if RUTA_PARAMETROS.exists() and not forzar_reajuste:
         parametros = cargar_parametros()
+        # 31/10/2026: si cambio la lista de variables (como al pasar de tarjetas_90 a
+        # amarillas_90), los parametros guardados no la cubren. No se reajusta solo
+        # (ver nota del modulo: reajustar es una decision explicita) -- se frena con
+        # un mensaje claro.
+        if list(parametros.get("variables", [])) != list(VARIABLES_A_ESTANDARIZAR):
+            raise ValueError(
+                f"Los parametros guardados ({RUTA_PARAMETROS.name}) estandarizan "
+                f"{parametros.get('variables')} pero VARIABLES_A_ESTANDARIZAR es "
+                f"{VARIABLES_A_ESTANDARIZAR}. Reajustar a proposito: correr d06 con "
+                "--forzar-reajuste-zscore (o d09 con --forzar-reajuste)."
+            )
         print(
             f"Z-score rendimiento/atributos: usando parametros ya ajustados "
             f"({RUTA_PARAMETROS.name}, ajustados el {parametros['fecha_ajuste']} "

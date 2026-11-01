@@ -65,12 +65,23 @@ def construir_rendimiento_basico(appearances, games, anio_min=ANIO_MIN_COBERTURA
     agregado["tarjetas_90"] = (
         (agregado["tarjetas_amarillas"] + agregado["tarjetas_rojas"]) / minutos_90
     )
+    # 31/10/2026 (decision del punto "tarjetas rojas y amarillas", ver e07 seccion 8):
+    # las dos tarjetas se separan. Las rojas son 93% ceros por jugador-temporada,
+    # asi que como tasa por 90 son ruido -- entran como evento (tuvo_roja, ver
+    # abajo); las amarillas si se comportan como tasa (amarillas_90).
+    # tarjetas_90 se conserva (columna cruda) pero ya no entra al modelo.
+    agregado["amarillas_90"] = agregado["tarjetas_amarillas"] / minutos_90
 
     # Division por cero -> NaN explicito, no inf
-    cols_90 = ["goles_90", "asistencias_90", "contribucion_gol_90", "tarjetas_90"]
+    cols_90 = ["goles_90", "asistencias_90", "contribucion_gol_90", "tarjetas_90", "amarillas_90"]
     agregado[cols_90] = agregado[cols_90].replace([np.inf, -np.inf], np.nan)
 
     agregado["minutos_confiables"] = agregado["minutos_totales"] >= MINUTOS_MIN_CONFIABLE
+
+    # tuvo_roja: 1.0 si el jugador vio al menos una roja en la temporada (liga domestica).
+    # Es un EVENTO, no una tasa por 90: no hay extrapolacion por minutos que enmascarar,
+    # asi que se define para todas las filas (no depende de minutos_confiables).
+    agregado["tuvo_roja"] = (agregado["tarjetas_rojas"] > 0).astype(float)
 
     return agregado
 

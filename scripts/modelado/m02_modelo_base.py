@@ -83,8 +83,10 @@ EDAD_CENTRO, EDAD_ESCALA = 20.0, 2.0
 CONTEXTO = ["pca_exito_deportivo", "companieros_valor_promedio", "formaciones_distintas", "fase_maxima_alcanzada"]
 RENDIMIENTO_Z = [
     "z_goles_90", "z_asistencias_90", "z_participacion_produccion",
-    "z_goles_recibidos_ajustados_90", "z_edad_debut", "z_tarjetas_90",
+    "z_goles_recibidos_ajustados_90", "z_edad_debut", "z_amarillas_90",
 ]
+# Tarjeta roja (31/10/2026): dummy 0/1 (>=1 roja en la temporada), entra sin estandarizar.
+REND_BINARIAS = ["tuvo_roja"]
 CON_INDICADOR_PROPIO = ["z_edad_debut", "z_goles_recibidos_ajustados_90"]
 ATRIBUTOS_NUM = ["z_altura_cm", "es_comunitario"]
 PIE = "pie_habil"
@@ -146,7 +148,7 @@ def preparar_datos(dataset, verbose=True):
     indicadores = {"pocos_minutos": pocos}
     for v in CON_INDICADOR_PROPIO:
         indicadores[f"falta_{v}"] = df[v].isna().astype(float)
-    rend = df[RENDIMIENTO_Z].fillna(0.0)
+    rend = pd.concat([df[RENDIMIENTO_Z].fillna(0.0), df[REND_BINARIAS].astype(float).fillna(0.0)], axis=1)
 
     # --- Estandarizacion (contexto, altura) -------------------------------
     escalas = {}

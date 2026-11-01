@@ -1,0 +1,2 @@
+etiqueta,filas,jugadores,rhat_max,ess_bulk_min,divergencias,elpd_loo,se_elpd_loo,p_loo,pareto_k_gt_0.7,residuo_sd,wooldridge_tripletas,wooldridge_jugadores,wooldridge_pendiente,wooldridge_se_agrupado,wooldridge_z_contra_menos_0.5,wooldridge_rho_implicado
+base_ninguno_normal_g2,19344,10388,1.0174314823832533,117.38210434951709,0,-23002.033215892683,107.60469178284849,6772.635708118518,3207,0.4793027465858292,3434,2190,-0.23213108378070424,0.018287454680005616,14.647687220910369,0.5357378324385915

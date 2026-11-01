@@ -47,6 +47,14 @@ posicion_amplia_predominante x season de la fila). Va sobre dataset_modelable
 d09 no necesita la DV para nada, pero mantenerlo como ultimo paso evita tener
 que reordenar los chequeos de sanidad de mas abajo (todos indiferentes a las
 columnas z_*).
+
+CAMBIO 31/10/2026 (decisiones previas al modelo base, nota para el tutor):
+(1) se agrega el merge de valor_previo (d05.construir_valor_previo: log_valor_previo
+y rezago_previo, variante C -- sin filas nuevas), justo despues del merge de la
+variable dependiente; (2) d03 ahora trae amarillas_90 y tuvo_roja y d09 estandariza
+amarillas_90 en lugar de tarjetas_90: como cambia la lista de variables del z-score,
+los parametros guardados quedan viejos y hay que reajustarlos UNA vez -- correr con
+`--forzar-reajuste-zscore`.
 """
 
 import sys
@@ -68,7 +76,7 @@ import d09_estandarizar_zscore as zscore
 from d04_construir_panel_predictores import construir_panel_predictores
 
 
-def main():
+def main(forzar_reajuste_zscore=False):
     tablas = ctx.cargar_tablas()
 
     panel = construir_panel_predictores(tablas)
@@ -138,6 +146,24 @@ def main():
             "No se guarda hasta resolver la causa."
         )
 
+    # --- Valor previo (variante C, 31/10/2026) ---
+    # Ultima valuacion anterior a la temporada de cada fila (incluye valuaciones de antes
+    # de que el jugador entrara al panel). No agrega filas: left join por clave unica.
+    n_filas_antes_previo = dataset_modelable.shape[0]
+    valor_mercado_temporada = dv.construir_valor_mercado_por_temporada(tablas["player_valuations"])
+    valor_previo = dv.construir_valor_previo(
+        valor_mercado_temporada, dataset_modelable[["player_id", "season"]]
+    )
+    dataset_modelable = dataset_modelable.merge(valor_previo, on=["player_id", "season"], how="left")
+    if dataset_modelable.shape[0] != n_filas_antes_previo:
+        raise ValueError(
+            f"El merge de valor_previo cambio la cantidad de filas del dataset modelable "
+            f"({n_filas_antes_previo} -> {dataset_modelable.shape[0]}). No se guarda hasta revisar."
+        )
+    print(f"Cobertura log_valor_previo: {dataset_modelable['log_valor_previo'].notna().mean():.4f}")
+    print("rezago_previo (temporadas hasta la valuacion previa) - distribucion:")
+    print(dataset_modelable["rezago_previo"].value_counts(dropna=False).sort_index().head(8))
+
     # --- Z-score de rendimiento_it + altura_cm (d09) ---
     # Merge por player_id+season (a diferencia de d08): el z-score de cada
     # variable, aun para las que son atributos fijos del jugador (edad_debut,
@@ -148,7 +174,9 @@ def main():
     # indice), pero se chequea el conteo de todas formas, mismo criterio que
     # el resto de los merges de este script.
     n_filas_antes_zscore = dataset_modelable.shape[0]
-    zscore_resultado, _parametros_zscore = zscore.construir_zscore(dataset_modelable)
+    zscore_resultado, _parametros_zscore = zscore.construir_zscore(
+        dataset_modelable, forzar_reajuste=forzar_reajuste_zscore
+    )
     dataset_modelable = dataset_modelable.merge(zscore_resultado, on=["player_id", "season"], how="left")
     if dataset_modelable.shape[0] != n_filas_antes_zscore:
         raise ValueError(
@@ -208,4 +236,8 @@ def main():
 
 
 if __name__ == "__main__":
-    tablas, panel_predictores, dataset_modelable = main()
+    # --forzar-reajuste-zscore: reajusta (y guarda) los parametros del z-score de d09.
+    # Necesario la primera vez tras cambiar la lista de variables estandarizadas.
+    tablas, panel_predictores, dataset_modelable = main(
+        forzar_reajuste_zscore="--forzar-reajuste-zscore" in sys.argv
+    )

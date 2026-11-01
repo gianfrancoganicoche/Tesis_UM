@@ -97,8 +97,15 @@ COLUMNAS_RENDIMIENTO_Z = [
     "z_participacion_produccion",
     "z_goles_recibidos_ajustados_90",
     "z_edad_debut",
-    "z_tarjetas_90",
+    "z_amarillas_90",   # 31/10/2026: reemplaza a z_tarjetas_90 (amarillas por 90, z-score)
 ]
+# Tarjeta roja: dummy (>=1 roja en la temporada), no se z-scorea. Tambien es rendimiento_it.
+COLUMNAS_RENDIMIENTO_BINARIAS = ["tuvo_roja"]
+
+# Valor de mercado previo (variante C, d05): log del ultimo valor anterior a la temporada y
+# cuantas temporadas atras esta. No entra al modelo base (m02); se usa en las variantes
+# autorregresivas (m05) y como insumo de la sensibilidad.
+COLUMNAS_VALOR_PREVIO = ["log_valor_previo", "rezago_previo"]
 
 # Atributos de jugador (d08): altura ya estandarizada por d09 (misma logica
 # que rendimiento_it); pie_habil/es_comunitario NO se z-scorean (categorica
@@ -111,7 +118,9 @@ COLUMNAS_FINALES = (
     [COLUMNA_JUGADOR, COLUMNA_TEMPORADA, COLUMNA_DV, COLUMNA_DV_NIVEL, COLUMNA_EDAD, COLUMNA_POSICION]
     + COLUMNAS_CONTEXTO
     + COLUMNAS_RENDIMIENTO_Z
+    + COLUMNAS_RENDIMIENTO_BINARIAS
     + [COLUMNA_ALTURA_Z, COLUMNA_PIE, COLUMNA_COMUNITARIO]
+    + COLUMNAS_VALOR_PREVIO
 )
 
 # Columnas de liga que, SI existieran en dataset_modelable, permitirian

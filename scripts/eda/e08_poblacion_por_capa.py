@@ -83,7 +83,7 @@ BLOQUES_SPEC = {
     ],
     "rendimiento": [
         "z_goles_90", "z_asistencias_90", "z_participacion_produccion",
-        "z_goles_recibidos_ajustados_90", "z_edad_debut", "z_tarjetas_90",
+        "z_goles_recibidos_ajustados_90", "z_edad_debut", "z_amarillas_90", "tuvo_roja",
     ],
     "atributos": ["z_altura_cm", "pie_habil", "es_comunitario"],
 }
