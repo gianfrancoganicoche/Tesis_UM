@@ -20,18 +20,19 @@ El proyecto busca separar la **calidad individual** de un jugador joven del **ef
 
 ## Estado del proyecto
 
-Última actualización: 2026-10-31.
+Última actualización: 2026-11-01.
 
 | Bloque | Estado |
 |---|---|
 | Pipeline de datos (`d01`–`d09`) | Terminado |
 | Análisis exploratorio (`e01`–`e08`) | Terminado |
 | Dataset de modelado (`m01`) | Terminado |
-| Modelo base (`m02`) | Terminado - En análisis |
-| Modelos siguientes (`m03`–`m06`) | Pendientes |
+| Modelo base (`m02`) | Terminado: corrida completa con convergencia aceptable, con y sin efecto de temporada |
+| Contraste de H1 (`m03`) | Hecho: ΔELPD +2.081 (26 SE), el contexto mejora la predicción; falta descomponer y chequear Mundlak |
+| Modelos siguientes (`m04`–`m06`) | Pendientes |
 | Redacción | Pendiente |
 
-**Próximos pasos:** Análisis de `m02`, efecto de temporada o γ_t (`m03`), validación cruzada agrupada por jugador y luego la variante autorregresiva.
+**Próximos pasos:** chequeo de Mundlak (¿el contexto sobrevive a la correlación entre el efecto del jugador y el club?), sensibilidad al prior del efecto de temporada y a la verosimilitud t, contraste sin 2019–2020 y sin 2024, y luego porteros (`m04`), autorregresivo (`m05`) y reputación del vendedor (`m06`).
 
 ## Estructura del repositorio
 
@@ -43,7 +44,7 @@ scripts/
   modelado/      m01–m0X: dataset de modelado y modelos
   diagnosticos/  consultas puntuales de auditoría
   entorno/       scripts de setup (PowerShell)
-entregables/     documentos para el tutor
+entregables/     documentos para el tutor, por etapa (dataset, eda, diagnosticos, modelado)
 reports/         tablas y figuras generadas
 outputs/         resultados de modelos
 assets/          fuentes tipográficas
@@ -62,7 +63,7 @@ Los scripts de `diagnosticos/` son consultas ad hoc y no forman parte del flujo 
 
 ## Documentos
 
-En `entregables/` están los informes de cada etapa:
+En `entregables/` están los informes de cada etapa, ordenados en subcarpetas como `scripts/`:
 
 - EDA 1–6 (univariado y bivariado, reducción de variables, PCA de éxito deportivo, exclusión de `pct_victorias`, variables de rendimiento, auditoría de variables clave).
 - Inventario de variables (`.docx` y `.xlsx`).

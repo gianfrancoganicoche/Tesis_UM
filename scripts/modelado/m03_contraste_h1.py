@@ -25,6 +25,10 @@ jugadores). Regla: |delta| > 2*SE se considera diferencia clara.
 
 OTROS BLOQUES: `--quitar ctx rend atr` compara tambien contra el modelo sin ese
 bloque (cada uno cuesta K ajustes mas).
+UNA VARIABLE DE CONTEXTO: `--quitar-variable companieros_valor_promedio` (acepta varias)
+compara contra el modelo sin esa variable, para ver cuanto del delta de H1 aporta cada una.
+Ojo: companieros_valor_promedio puede reflejar calidad no observada del jugador (el
+club grande ficha a los buenos), no solo contexto.
 
 NOTAS: (1) la estandarizacion de covariables se hizo con toda la muestra
 (preparar_datos de m02); es un detalle menor: no usa y. (2) Solo
@@ -35,6 +39,8 @@ SALIDAS:
     reports/m03_contraste_h1/<etiqueta>_elpd_por_jugador.csv
     reports/m03_contraste_h1/<etiqueta>_comparacion.csv
     reports/m03_contraste_h1/<etiqueta>_convergencia_pliegues.csv
+
+USO (una variable): uv run scripts/modelado/m03_contraste_h1.py --quitar-variable companieros_valor_promedio --temporada rw --etiqueta h1_rw_var
 
 USO:
     uv run scripts/modelado/m03_contraste_h1.py --rapido             # prueba de humo
@@ -86,6 +92,17 @@ def quitar_bloque(d, bloque):
     clave = BLOQUES[bloque]
     out = dict(d)
     out[clave] = np.zeros((len(d["y"]), 1))
+    return out
+
+
+def quitar_variable(d, meta, nombre):
+    """Pone en cero UNA columna del bloque de contexto (la deja sin efecto), conservando las demas."""
+    if nombre not in meta["cols_ctx"]:
+        raise ValueError(f"{nombre} no es una variable de contexto: {meta['cols_ctx']}")
+    out = dict(d)
+    X = d["X_ctx"].copy()
+    X[:, meta["cols_ctx"].index(nombre)] = 0.0
+    out["X_ctx"] = X
     return out
 
 
@@ -198,6 +215,8 @@ def main(argv=None):
     parser.add_argument("--k", type=int, default=None, help="Pliegues (por defecto 5; 3 con --rapido).")
     parser.add_argument("--quitar", nargs="+", choices=list(BLOQUES), default=["ctx"],
                         help="Bloques a sacar, uno por modelo de comparacion (por defecto: ctx = contexto, el de H1).")
+    parser.add_argument("--quitar-variable", nargs="+", default=[], dest="quitar_variable",
+                        help="Variables de contexto a sacar de a una (ej. companieros_valor_promedio).")
     parser.add_argument("--temporada", choices=["ninguno", "rw"], default="ninguno")
     parser.add_argument("--grado-edad", type=int, default=2)
     parser.add_argument("--etiqueta", default=None)
@@ -207,7 +226,9 @@ def main(argv=None):
     parser.add_argument("--cadenas", type=int, default=None)
     parser.add_argument("--draws-evaluacion", type=int, default=400, help="Draws usados para evaluar cada pliegue.")
     parser.add_argument("--muestreador", choices=["pymc", "nutpie"], default="nutpie")
-    args, _ = parser.parse_known_args(argv)
+    args, desconocidos = parser.parse_known_args(argv)
+    if desconocidos:
+        raise SystemExit(f"Opciones no reconocidas: {desconocidos}. Revisar que el script este actualizado (ver --help).")
 
     import config
     import e08_poblacion_por_capa as e08
@@ -219,7 +240,8 @@ def main(argv=None):
 
     d, meta = m02.preparar_datos(e08.cargar_dataset_modelado())
     pliegue_fila = asignar_pliegues(d["jug_idx"], k)
-    modelos = {"completo": d, **{f"sin_{b}": quitar_bloque(d, b) for b in args.quitar}}
+    modelos = {"completo": d, **{f"sin_{b}": quitar_bloque(d, b) for b in args.quitar},
+               **{f"sin_{v}": quitar_variable(d, meta, v) for v in args.quitar_variable}}
     print(f"\nContraste H1: {k} pliegues por jugador, modelos = {list(modelos)}, temporada = {args.temporada}")
 
     elpd = {nombre: np.full(meta["n_jugadores"], np.nan) for nombre in modelos}
@@ -257,6 +279,8 @@ def main(argv=None):
     print("\nResultado (delta_ELPD = completo - sin el bloque; > 0 favorece al bloque):")
     with pd.option_context("display.width", 200, "display.float_format", "{:,.2f}".format):
         print(comp.to_string(index=False))
+    if "ctx" not in args.quitar:
+        print("\nNota: no se incluyo sin_ctx; no se evalua la regla de H1 (solo la tabla).")
     h1 = comp[comp["completo_menos"] == "sin_ctx"]
     if len(h1):
         r = h1.iloc[0]
