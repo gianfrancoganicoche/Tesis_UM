@@ -31,6 +31,7 @@ El proyecto busca separar la **calidad individual** de un jugador joven del **ef
 | Modelo base (`m02`) | Terminado: con y sin efecto de temporada, y con chequeo de Mundlak (`--mundlak`). El ESS mínimo (~230) corresponde al desvío entre posiciones y no afecta a los coeficientes interpretados |
 | Contraste de H1 (`m03`) | Hecho: ΔELPD +2.081 (26 SE) sin Mundlak. Con Mundlak: +2.896 (36 SE) sacando todo el contexto y +556 (14 SE) sacando solo el efecto dentro del jugador. Falta la robustez temporal |
 | Chequeo de Mundlak | Hecho: el efecto individual no es independiente del contexto; el efecto de los compañeros dentro del jugador (0,22) es la mitad del efecto sin Mundlak (0,42) |
+| Modelos no lineales (`nl01`–`nl02`) | Código listo; falta correrlo. Pregunta del tutor: ¿un modelo no lineal predice jugadores nuevos mejor que el lineal? |
 | Modelos siguientes (`m04`–`m06`) | Pendientes |
 | Redacción | Pendiente |
 
@@ -44,9 +45,10 @@ scripts/
   dataset/       d01–d09: pipeline de construcción de datos
   eda/           e01–e08: análisis exploratorio (no modifica datos)
   modelado/      m01–m0X: dataset de modelado y modelos
+  modelo_no_lineal/  nl01–nl0X: revisión de no linealidad (referente de boosting, splines); ver su README
   diagnosticos/  consultas puntuales de auditoría
   entorno/       scripts de setup (PowerShell)
-entregables/     documentos para el tutor, por etapa (dataset, eda, diagnosticos, modelado)
+entregables/     documentos para el tutor, por etapa (dataset, eda, diagnosticos, modelado, modelo_no_lineal)
 reports/         tablas y figuras generadas
 outputs/         resultados de modelos
 assets/          fuentes tipográficas
@@ -60,6 +62,7 @@ data/            local, no se versiona (ver abajo)
 | `d0X` | Datos: construcción del dataset, se ejecutan en orden |
 | `e0X` | Exploratorio: diagnóstico sobre datos ya construidos |
 | `m0X` | Modelos |
+| `nl0X` | Modelos no lineales (módulo aparte, `scripts/modelo_no_lineal/`) |
 
 Los scripts de `diagnosticos/` son consultas ad hoc y no forman parte del flujo regular.
 

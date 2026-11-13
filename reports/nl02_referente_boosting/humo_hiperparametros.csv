@@ -1,0 +1,4 @@
+pliegue,rmse_interno,learning_rate,max_iter,max_leaf_nodes,min_samples_leaf
+0,0.7539972076623247,0.1,100,31,100
+1,0.7589938434874722,0.1,100,31,100
+2,0.764494809580782,0.1,100,31,100

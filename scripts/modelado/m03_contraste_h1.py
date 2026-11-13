@@ -111,11 +111,28 @@ def quitar_bloque(d, bloque, meta=None):
     return out
 
 
+def recalcular_mundlak(d, meta):
+    """Recalcula el promedio por jugador sobre las filas que quedan en `d` (tras filtrar temporadas)."""
+    if "X_mun" not in d:
+        return d
+    X = np.zeros_like(d["X_mun"])
+    n = np.bincount(d["jug_idx"]).astype(float)
+    for j, c in enumerate(meta["cols_mun"]):
+        nombre = c.replace("mun_", "", 1)
+        if nombre in meta["cols_ctx"]:
+            col = d["X_ctx"][:, meta["cols_ctx"].index(nombre)]
+        else:
+            col = d["X_rend"][:, meta["cols_rend"].index(nombre)]
+        X[:, j] = (np.bincount(d["jug_idx"], weights=col) / n)[d["jug_idx"]]
+    return {**d, "X_mun": X}
+
+
 def filtrar_temporadas(d, meta, excluir):
     """Saca las filas de las temporadas indicadas (robustez B3/B4). Devuelve (d, meta, mascara)."""
     temporada_fila = np.asarray(meta["temporadas"])[d["temp_idx"]]
     mascara = ~np.isin(temporada_fila, list(excluir))
     sub, meta_sub = subconjunto(d, meta, mascara)
+    sub = recalcular_mundlak(sub, meta_sub)  # los promedios por jugador no deben incluir las temporadas sacadas
     return sub, meta_sub, mascara
 
 
