@@ -91,6 +91,11 @@ CON_INDICADOR_PROPIO = ["z_edad_debut", "z_goles_recibidos_ajustados_90"]
 ATRIBUTOS_NUM = ["z_altura_cm", "es_comunitario"]
 PIE = "pie_habil"
 
+# Variables que se tratan como atributo del jugador y no entran al Mundlak: `z_edad_debut` es la
+# edad de debut (fija por jugador); solo varia entre temporadas por la estandarizacion por
+# posicion y temporada, asi que su promedio es casi igual a la variable y no se separa del efecto.
+MUNDLAK_EXCLUIR = ["z_edad_debut"]
+
 SEMILLA = 2026
 
 
@@ -171,6 +176,21 @@ def preparar_datos(dataset, verbose=True):
     X_rend = pd.concat([rend.reset_index(drop=True), pd.DataFrame(indicadores)], axis=1)
     X_atr = pd.DataFrame(atr)
 
+    # --- Mundlak: promedio por jugador de las covariables que varian en el tiempo ---
+    # (contexto + rendimiento continuo + roja). Con `--mundlak` el coeficiente de cada una
+    # pasa a ser el efecto DENTRO del jugador, y el de su promedio es la diferencia
+    # entre-dentro. Si esa diferencia es ~0, la hipotesis de efecto aleatorio no distorsiona.
+    base_mun = pd.concat([X_ctx.reset_index(drop=True), rend.reset_index(drop=True)], axis=1)
+    # Se excluyen las columnas que no varian dentro de ningun jugador (ej. z_edad_debut):
+    # su promedio es la propia variable y el efecto dentro/entre no se separa (colinealidad exacta).
+    grupos_mun = df[COL_JUGADOR].to_numpy()
+    desvio_dentro = (base_mun - base_mun.groupby(grupos_mun).transform("mean")).abs().max()
+    razon_dentro = ((base_mun - base_mun.groupby(grupos_mun).transform("mean")).std() / base_mun.std()).to_dict()
+    cols_mun_excluidas = [c for c in base_mun.columns if desvio_dentro[c] < 1e-9 or c in MUNDLAK_EXCLUIR]
+    base_mun = base_mun.drop(columns=cols_mun_excluidas)
+    X_mun = base_mun.groupby(grupos_mun).transform("mean")
+    X_mun.columns = [f"mun_{c}" for c in base_mun.columns]
+
     # --- Indices -----------------------------------------------------------
     posiciones = sorted(df[COL_POSICION].unique())
     jugadores, jug_idx = np.unique(df[COL_JUGADOR].to_numpy(), return_inverse=True)
@@ -188,6 +208,7 @@ def preparar_datos(dataset, verbose=True):
         "X_ctx": X_ctx.to_numpy(dtype=float),
         "X_rend": X_rend.to_numpy(dtype=float),
         "X_atr": X_atr.to_numpy(dtype=float),
+        "X_mun": X_mun.to_numpy(dtype=float),
         "pos_idx": pos_idx,
         "jug_idx": jug_idx,
         "temp_idx": temp_idx,
@@ -200,11 +221,17 @@ def preparar_datos(dataset, verbose=True):
         "cols_ctx": list(X_ctx.columns),
         "cols_rend": list(X_rend.columns),
         "cols_atr": list(X_atr.columns),
+        "cols_mun": list(X_mun.columns),
+        "cols_mun_excluidas": cols_mun_excluidas,
+        "razon_dentro_total": razon_dentro,
         "pie_referencia": str(referencia),
         "escalas": escalas,
         "cascada": [{"paso": n, "filas": f, "jugadores": j} for n, f, j in cascada],
     }
     if verbose:
+        print("\nMundlak: desvio dentro del jugador / desvio total, por variable (cerca de 0 = casi fija en el jugador):")
+        for c, r in razon_dentro.items():
+            print(f"  {c:<40s} {r:.2f}" + ("   <-- excluida del Mundlak" if c in cols_mun_excluidas else ""))
         print("\nCascada de filas:")
         for n, f, j in cascada:
             print(f"  {n:<55s} {f:>7d} filas  {j:>6d} jugadores")
@@ -233,13 +260,15 @@ def predictor_lineal(p, d, P_edad, usar_temporada):
     curva = (P_edad * (p["b_edad"][None, :] + p["dev_edad"][d["pos_idx"], :])).sum(axis=1)
     mu = mu + curva
     mu = mu + d["X_ctx"] @ p["b_ctx"] + d["X_rend"] @ p["b_rend"] + d["X_atr"] @ p["b_atr"]
+    if "b_mun" in p:
+        mu = mu + d["X_mun"] @ p["b_mun"]
     mu = mu + p["alfa"][d["jug_idx"]]
     if usar_temporada:
         mu = mu + p["gamma"][d["temp_idx"]]
     return mu
 
 
-def construir_modelo(d, meta, grado_edad, temporada, verosimilitud):
+def construir_modelo(d, meta, grado_edad, temporada, verosimilitud, mundlak=False):
     import pymc as pm
 
     n_pos = len(meta["posiciones"])
@@ -274,6 +303,8 @@ def construir_modelo(d, meta, grado_edad, temporada, verosimilitud):
             "intercepto": intercepto, "nivel_pos": nivel_pos, "b_edad": b_edad, "dev_edad": dev_edad,
             "b_ctx": b_ctx, "b_rend": b_rend, "b_atr": b_atr, "alfa": alfa,
         }
+        if mundlak:
+            params["b_mun"] = pm.Normal("b_mun", 0.0, 0.5, shape=d["X_mun"].shape[1])
         if usar_temporada:
             sigma_rw = pm.HalfNormal("sigma_rw", 0.1)
             pasos = pm.Normal("pasos_rw", 0.0, 1.0, shape=n_temp - 1)
@@ -296,6 +327,8 @@ def medias_posteriores(idata, usar_temporada):
     def m(nombre):
         return post[nombre].mean(dim=("chain", "draw")).to_numpy()
     p = {k: m(k) for k in ("intercepto", "nivel_pos", "b_edad", "dev_edad", "b_ctx", "b_rend", "b_atr", "alfa")}
+    if "b_mun" in post:
+        p["b_mun"] = m("b_mun")
     if usar_temporada:
         p["gamma"] = m("gamma")
     return p
@@ -405,6 +438,8 @@ def main(argv=None):
     parser.add_argument("--temporada", choices=["ninguno", "rw"], default="ninguno")
     parser.add_argument("--verosimilitud", choices=["normal", "t"], default="normal")
     parser.add_argument("--grado-edad", type=int, default=2)
+    parser.add_argument("--mundlak", action="store_true",
+                        help="Agrega el promedio por jugador de contexto y rendimiento (efecto dentro vs. entre).")
     parser.add_argument("--etiqueta", default=None, help="Nombre de la corrida (por defecto segun las opciones).")
     parser.add_argument("--objetivo-aceptacion", type=float, default=0.9)
     parser.add_argument("--draws", type=int, default=None, help="Draws por cadena (por defecto 1000; 500 con --rapido).")
@@ -419,7 +454,7 @@ def main(argv=None):
     import e08_poblacion_por_capa as e08
 
     estilo.aplicar_estilo()
-    etiqueta = args.etiqueta or f"base_{args.temporada}_{args.verosimilitud}_g{args.grado_edad}"
+    etiqueta = args.etiqueta or f"base_{args.temporada}_{args.verosimilitud}_g{args.grado_edad}" + ("_mun" if args.mundlak else "")
     ruta_reports = config.ruta_reports_script(Path(__file__).stem)
     ruta_figuras = config.ruta_figuras_script(Path(__file__).stem)
     ruta_traza = config.REPO_ROOT / "outputs" / "modelado" / Path(__file__).stem
@@ -427,7 +462,7 @@ def main(argv=None):
 
     dataset = e08.cargar_dataset_modelado()
     d, meta = preparar_datos(dataset)
-    modelo, P_edad, usar_temporada = construir_modelo(d, meta, args.grado_edad, args.temporada, args.verosimilitud)
+    modelo, P_edad, usar_temporada = construir_modelo(d, meta, args.grado_edad, args.temporada, args.verosimilitud, mundlak=args.mundlak)
 
     tune, draws, chains = (500, 500, 2) if args.rapido else (1000, 1000, 4)
     tune = args.tune or tune
@@ -460,6 +495,27 @@ def main(argv=None):
               "No interpretar los coeficientes sin revisar.")
     with pd.option_context("display.width", 200, "display.float_format", "{:,.3f}".format):
         print(resumen.to_string())
+
+    # --- Mundlak: efecto dentro vs. entre jugadores (solo con --mundlak) ---------------
+    if args.mundlak:
+        post = idata.posterior
+        b_c = post["b_ctx"].stack(s=("chain", "draw")).transpose("s", ...).to_numpy()
+        b_m = post["b_mun"].stack(s=("chain", "draw")).transpose("s", ...).to_numpy()
+        filas_mun = []
+        for k, nombre in enumerate(meta["cols_ctx"]):  # las primeras columnas de b_mun son las de contexto
+            dentro, dif = b_c[:, k], b_m[:, k]
+            lo, hi = np.percentile(dif, [3, 97])
+            filas_mun.append({
+                "variable": nombre,
+                "efecto_dentro": dentro.mean(), "dentro_lo": np.percentile(dentro, 3), "dentro_hi": np.percentile(dentro, 97),
+                "dif_entre_menos_dentro": dif.mean(), "dif_lo": lo, "dif_hi": hi,
+                "efecto_entre": (dentro + dif).mean(), "dif_excluye_cero": bool(lo > 0 or hi < 0),
+            })
+        tabla_mun = pd.DataFrame(filas_mun)
+        tabla_mun.to_csv(ruta_reports / f"{etiqueta}_mundlak_contexto.csv", index=False)
+        print("\nMundlak (contexto): efecto DENTRO del jugador vs. diferencia con el efecto ENTRE jugadores:")
+        with pd.option_context("display.width", 200, "display.float_format", "{:,.3f}".format):
+            print(tabla_mun.to_string(index=False))
 
     # --- Ajuste: LOO ----------------------------------------------------------
     diag = {"etiqueta": etiqueta, "filas": len(d["y"]), "jugadores": meta["n_jugadores"],
@@ -559,4 +615,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    main()

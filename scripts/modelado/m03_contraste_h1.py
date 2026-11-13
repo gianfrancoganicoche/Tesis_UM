@@ -63,7 +63,9 @@ _RAIZ_SCRIPTS = Path(__file__).resolve().parents[1]  # scripts/
 for _carpeta in ("config", "dataset", "eda", "diagnosticos", "modelado"):
     sys.path.insert(0, str(_RAIZ_SCRIPTS / _carpeta))
 
-BLOQUES = {"ctx": "X_ctx", "rend": "X_rend", "atr": "X_atr"}
+# `ctx_dentro` (solo con --mundlak): saca el efecto DENTRO del contexto pero conserva sus promedios
+# por jugador, para medir si el cambio de contexto de un mismo jugador mejora la prediccion.
+BLOQUES = {"ctx": "X_ctx", "rend": "X_rend", "atr": "X_atr", "ctx_dentro": "X_ctx"}
 SEMILLA_PLIEGUES = 2026
 
 
@@ -87,12 +89,34 @@ def subconjunto(d, meta, mascara):
     return sub, {**meta, "n_jugadores": int(len(uniq))}
 
 
-def quitar_bloque(d, bloque):
+def _poner_cero_mundlak(out, d, meta, nombres):
+    """Con --mundlak, el promedio por jugador de cada variable que se saca tambien se saca."""
+    if meta is None or "X_mun" not in d:
+        return
+    X = d["X_mun"].copy()
+    for j, c in enumerate(meta["cols_mun"]):
+        if c.replace("mun_", "", 1) in nombres:
+            X[:, j] = 0.0
+    out["X_mun"] = X
+
+
+def quitar_bloque(d, bloque, meta=None):
     """Reemplaza un bloque de covariables por una columna de ceros (queda sin efecto)."""
     clave = BLOQUES[bloque]
     out = dict(d)
     out[clave] = np.zeros((len(d["y"]), 1))
+    if meta is not None and bloque != "ctx_dentro":
+        nombres = {"ctx": meta["cols_ctx"], "rend": meta["cols_rend"]}.get(bloque, [])
+        _poner_cero_mundlak(out, d, meta, nombres)
     return out
+
+
+def filtrar_temporadas(d, meta, excluir):
+    """Saca las filas de las temporadas indicadas (robustez B3/B4). Devuelve (d, meta, mascara)."""
+    temporada_fila = np.asarray(meta["temporadas"])[d["temp_idx"]]
+    mascara = ~np.isin(temporada_fila, list(excluir))
+    sub, meta_sub = subconjunto(d, meta, mascara)
+    return sub, meta_sub, mascara
 
 
 def quitar_variable(d, meta, nombre):
@@ -103,6 +127,7 @@ def quitar_variable(d, meta, nombre):
     X = d["X_ctx"].copy()
     X[:, meta["cols_ctx"].index(nombre)] = 0.0
     out["X_ctx"] = X
+    _poner_cero_mundlak(out, d, meta, [nombre])
     return out
 
 
@@ -154,6 +179,8 @@ def extraer_draws(idata, usar_temporada, n_max):
     nombres = ["intercepto", "nivel_pos", "b_edad", "dev_edad", "b_ctx", "b_rend", "b_atr", "sigma_alfa", "sigma_eps"]
     if usar_temporada:
         nombres.append("gamma")
+    if "b_mun" in post:
+        nombres.append("b_mun")
     salida = {}
     for nombre in nombres:
         salida[nombre] = post[nombre].stack(s=("chain", "draw")).transpose("s", ...).to_numpy()
@@ -173,6 +200,8 @@ def mu_fijo_por_draw(draws, d_te, grado_edad, usar_temporada):
     for s in range(S):
         p = {k: draws[k][s] for k in ("intercepto", "nivel_pos", "b_edad", "dev_edad", "b_ctx", "b_rend", "b_atr")}
         p["alfa"] = np.zeros(1)
+        if "b_mun" in draws:
+            p["b_mun"] = draws["b_mun"][s]
         if usar_temporada:
             p["gamma"] = draws["gamma"][s]
         mu[s] = m02.predictor_lineal(p, d_sin_jug, P_edad, usar_temporada)
@@ -184,7 +213,7 @@ def ajustar_y_evaluar(d_tr, meta_tr, d_te, args, etiqueta_modelo, pliegue):
     import pymc as pm
     import m02_modelo_base as m02
 
-    modelo, _, usar_temporada = m02.construir_modelo(d_tr, meta_tr, args.grado_edad, args.temporada, "normal")
+    modelo, _, usar_temporada = m02.construir_modelo(d_tr, meta_tr, args.grado_edad, args.temporada, "normal", mundlak=args.mundlak)
     tune, draws, chains = (500, 500, 2) if args.rapido else (1000, 1000, 4)
     tune, draws, chains = args.tune or tune, args.draws or draws, args.cadenas or chains
     kw = {"nuts_sampler": "nutpie"} if args.muestreador == "nutpie" else {}
@@ -219,6 +248,10 @@ def main(argv=None):
                         help="Variables de contexto a sacar de a una (ej. companieros_valor_promedio).")
     parser.add_argument("--temporada", choices=["ninguno", "rw"], default="ninguno")
     parser.add_argument("--grado-edad", type=int, default=2)
+    parser.add_argument("--mundlak", action="store_true",
+                        help="Agrega el promedio por jugador de contexto y rendimiento a todos los modelos.")
+    parser.add_argument("--excluir-temporadas", type=int, nargs="+", default=[], dest="excluir_temporadas",
+                        help="Temporadas a sacar de la muestra (ej. 2019 2020). Los delta solo se comparan dentro de una misma muestra.")
     parser.add_argument("--etiqueta", default=None)
     parser.add_argument("--objetivo-aceptacion", type=float, default=0.95)
     parser.add_argument("--draws", type=int, default=None)
@@ -234,13 +267,24 @@ def main(argv=None):
     import e08_poblacion_por_capa as e08
     import m02_modelo_base as m02
 
+    if "ctx_dentro" in args.quitar and not args.mundlak:
+        raise SystemExit("--quitar ctx_dentro requiere --mundlak (sin promedios, equivale a --quitar ctx).")
     k = args.k or (3 if args.rapido else 5)
-    etiqueta = args.etiqueta or f"h1_{args.temporada}_k{k}"
+    etiqueta = args.etiqueta or f"h1_{args.temporada}_k{k}" + ("_mun" if args.mundlak else "") \
+        + ("_sin" + "_".join(map(str, args.excluir_temporadas)) if args.excluir_temporadas else "")
     ruta_reports = config.ruta_reports_script(Path(__file__).stem)
 
     d, meta = m02.preparar_datos(e08.cargar_dataset_modelado())
+    if meta.get("cols_mun_excluidas"):
+        print(f"Mundlak: columnas excluidas del Mundlak: {meta['cols_mun_excluidas']}")
+    ids_fila = d["df"]["player_id"].to_numpy()
+    if args.excluir_temporadas:
+        d, meta, mascara = filtrar_temporadas(d, meta, args.excluir_temporadas)
+        ids_fila = ids_fila[mascara]
+        print(f"Sin las temporadas {args.excluir_temporadas}: quedan {int(mascara.sum())} filas y {meta['n_jugadores']} jugadores.")
+    ids_jugadores = np.unique(ids_fila)  # mismo orden que el indice de jugadores (np.unique en preparar_datos/subconjunto)
     pliegue_fila = asignar_pliegues(d["jug_idx"], k)
-    modelos = {"completo": d, **{f"sin_{b}": quitar_bloque(d, b) for b in args.quitar},
+    modelos = {"completo": d, **{f"sin_{b}": quitar_bloque(d, b, meta) for b in args.quitar},
                **{f"sin_{v}": quitar_variable(d, meta, v) for v in args.quitar_variable}}
     print(f"\nContraste H1: {k} pliegues por jugador, modelos = {list(modelos)}, temporada = {args.temporada}")
 
@@ -262,7 +306,7 @@ def main(argv=None):
                   f"ESS min {conv['ess_bulk_min']:.0f}  div {conv['divergencias']}{aviso}")
 
     por_jugador = pd.DataFrame({"jug_idx": np.arange(meta["n_jugadores"]), **elpd})
-    por_jugador["player_id"] = np.unique(d["df"]["player_id"].to_numpy())
+    por_jugador["player_id"] = ids_jugadores
     por_jugador.to_csv(ruta_reports / f"{etiqueta}_elpd_por_jugador.csv", index=False)
     pd.DataFrame(convergencia).to_csv(ruta_reports / f"{etiqueta}_convergencia_pliegues.csv", index=False)
 
