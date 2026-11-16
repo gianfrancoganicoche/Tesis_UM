@@ -1,0 +1,217 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\usepackage{polyglossia}
+\setmainlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+
+\setlist{itemsep=0.4em,topsep=0.4em}
+\setlength{\parskip}{0.55em}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.25}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.6em}{}
+\newcommand{\var}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\lead}[1]{\textbf{#1}}
+
+\title{Nota técnica: fundamento econométrico del modelo base}
+\author{Gianfranco Ganicoche}
+\date{1 de noviembre de 2026}
+
+\begin{document}
+\maketitle
+
+\section{Alcance y resumen}
+
+\lead{El modelo base (m02) es un modelo lineal jerárquico bayesiano de panel, con efecto aleatorio por jugador, estimado en sub-23 de primera división europea.} Es la referencia contra la que se contrasta H1 y se miden las variantes de robustez. Estima asociaciones condicionales; no identifica efectos causales.
+
+\begin{itemize}
+  \item \lead{Qué afirma:} asociaciones entre el log del valor de mercado y la edad, el contexto del club, el rendimiento y atributos del jugador, descontada una heterogeneidad inobservada y persistente de cada jugador.
+  \item \lead{Qué no afirma:} causalidad (los jugadores no se asignan al azar a los clubes), ni nada sobre edades fuera de 15--23 años, ni sobre jugadores sin valuación observada.
+  \item \lead{Los tres supuestos que más pesan:} que el efecto del jugador no se correlacione con las covariables (probablemente falso para el contexto), que los errores sean independientes en el tiempo (la evidencia dice que no, $\rho \approx 0{,}54$) y que la muestra observada no esté seleccionada de forma grave.
+\end{itemize}
+
+Las secciones 5 y 6 detallan cómo se tratan estos supuestos y qué queda pendiente.
+
+\section{Datos y unidad de análisis}
+
+\lead{La muestra es un panel desbalanceado y corto: 10.388 jugadores observados en 19.344 jugador-temporada, 1,9 observaciones por jugador en promedio.} El índice $i$ es el jugador y $t$ la temporada (2013--2025). El ancho temporal limita cuánta variación \emph{within} hay para identificar efectos que cambian en el tiempo.
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Paso & Filas & Jugadores \\
+\midrule
+Panel completo & 90.408 & 26.297 \\
+Población de H1 (sub-23, primera división europea) & 21.910 & 11.779 \\
+Sin filas sin posición & 20.408 & 11.117 \\
+Sin faltantes en contexto, altura, pie y condición de comunitario & 19.344 & 10.388 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+  \item \lead{Variable dependiente:} logaritmo del valor de mercado en euros (Transfermarkt), centrado en su media muestral. Para cada jugador-temporada se usa la última valuación registrada en la temporada, que es la regla general del panel.
+  \item \lead{Covariables de contexto (4):} \var{pca_exito_deportivo}, \var{companieros_valor_promedio}, \var{formaciones_distintas} y \var{fase_maxima_alcanzada}, estandarizadas con la media y el desvío de la muestra del modelo.
+  \item \lead{Rendimiento (10 columnas):} seis z-scores (goles, asistencias, participación en producción, goles recibidos ajustados, edad de debut y amarillas por 90 minutos), una dummy de roja, el indicador de pocos minutos (menos de 450) y dos indicadores de faltante propios.
+  \item \lead{Atributos (4):} altura (estandarizada), condición de comunitario y dos dummies de pie hábil.
+  \item \lead{Posición:} cuatro categorías (arquero, defensor, delantero, mediocampista), la predominante de cada jugador-temporada.
+\end{itemize}
+
+En el dataset anterior (25/09), el 48,4\,\% de los jugadores de esta población tenía dos o más filas, y 9.096 filas tenían un par consecutivo. Son cifras del análisis e08, no de la muestra final.
+
+\section{Especificación}
+
+\lead{El log del valor es una función lineal de una curva de edad con desvíos por posición, tres bloques de covariables y un efecto aleatorio por jugador.}
+
+\begin{equation*}
+y_{it} = \mu + \delta_{p_{it}} + \sum_{k=1}^{2} \left(\beta_k + \theta_{p_{it}k}\right) x_{it}^{k} + z_{it}'\gamma + r_{it}'\psi + w_{it}'\varphi + \alpha_i + \varepsilon_{it}
+\end{equation*}
+\begin{equation*}
+\alpha_i \sim N(0, \sigma_\alpha^2), \quad \varepsilon_{it} \sim N(0, \sigma_\varepsilon^2), \quad \theta_{pk} \sim N(0, \sigma_{\theta k}^2), \quad \sum_p \delta_p = 0
+\end{equation*}
+
+\begin{itemize}
+  \item $\boldsymbol{y_{it}}$\textbf{:} log del valor de mercado, centrado en su media muestral.
+  \item $\boldsymbol{x_{it}=(\text{edad}-20)/2}$\textbf{:} edad reescalada. Con $k=1,2$ es un polinomio de grado 2.
+  \item $\boldsymbol{\delta_p}$\textbf{:} nivel de cada posición $p$, con suma cero. $\boldsymbol{\theta_{pk}}$\textbf{:} desvío de cada posición respecto de la curva de edad común ($\beta_1$, $\beta_2$), encogido hacia cero.
+  \item $\boldsymbol{z}$ (4), $\boldsymbol{r}$ (10), $\boldsymbol{w}$ (4)\textbf{:} contexto, rendimiento y atributos, con coeficientes $\gamma$, $\psi$ y $\varphi$.
+  \item $\boldsymbol{\alpha_i}$\textbf{:} efecto aleatorio del jugador. $\boldsymbol{\varepsilon_{it}}$\textbf{:} error idiosincrático, supuesto i.i.d.\ normal.
+\end{itemize}
+
+Los priors son débilmente informativos y se escriben sobre covariables estandarizadas:
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{8.4cm}@{}}
+\toprule
+Parámetro & Prior & Comentario \\
+\midrule
+$\mu$ & $N(0,2)$ & La variable dependiente está centrada \\
+$\beta_k,\ \gamma,\ \psi,\ \varphi$ & $N(0;0{,}5)$ & Un desvío de la covariable mueve el log del valor en menos de 1 con alta probabilidad previa \\
+$\sigma_\delta,\ \sigma_{\theta k}$ & HalfNormal$(0{,}5)$ & Escalas por posición, estimadas con solo 4 grupos \\
+$\sigma_\alpha,\ \sigma_\varepsilon$ & HalfNormal$(1)$ & Escala del efecto de jugador y del error \\
+$\alpha_i,\ \theta_{pk},\ \delta_p$ & Parametrización no centrada & Se estima un término estándar $N(0,1)$ y se multiplica por la escala; $\delta_p$ se centra para que sume cero \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Por qué esta especificación}
+
+\lead{Cada decisión responde a una característica de los datos: asimetría del valor, pocas observaciones por jugador, edad en un rango corto y faltantes que dependen de los minutos.}
+
+\lead{Logaritmo del valor.} El valor es positivo y muy asimétrico: en el panel completo la media es 4,6 millones de euros y la mediana 1 millón, con un máximo de 200. En logaritmo los coeficientes se leen como cambios porcentuales y los errores son más simétricos. El límite es que Transfermarkt publica valuaciones en escalones, así que el error de medición no es exactamente normal.
+
+\lead{Efecto aleatorio en lugar de efecto fijo.} Con 1,9 observaciones por jugador, un efecto fijo (una constante por jugador) usa solo la variación \emph{within}, que es escasa, y no permite estimar los atributos que no cambian en el tiempo (altura, pie, condición de comunitario). El efecto aleatorio pondera la variación \emph{between} y \emph{within}, y encoge hacia la media a los jugadores con una sola fila, que son una parte grande de la muestra. Su costo es el supuesto de que $\alpha_i$ no se correlaciona con las covariables, que se discute en la sección 5.
+
+\lead{Curva de edad cuadrática.} La edad de la población va de unos 15 a 23 años, un rango donde un polinomio de grado 2 es una aproximación razonable y barata de interpretar. Todavía no se revisaron los residuos por edad. Si piden más flexibilidad, se sube el grado o se pasa a splines.
+
+\lead{Desvíos por posición con encogimiento.} Estimar una curva por posición por separado dejaría a los arqueros con pocos datos. El encogimiento jerárquico comparte información entre posiciones, y es la base para contrastar H2. Con solo cuatro grupos, las escalas $\sigma_\theta$ y $\sigma_\delta$ están débilmente identificadas, que es lo que muestran los diagnósticos de convergencia.
+
+\lead{Faltantes de rendimiento: cero más indicador.} Los z-scores de producción faltan cuando el jugador tiene pocos minutos (piso de 450), así que el faltante es una función de una variable observada. Condicionando en los minutos, el mecanismo es ignorable, y rellenar con el valor medio (0) y agregar \var{pocos_minutos} conserva el 45,6\,\% de las filas. Dos variables tienen otro mecanismo (\var{z_edad_debut} y \var{z_goles_recibidos_ajustados_90}) y llevan su propio indicador. Los coeficientes de los indicadores no se interpretan solos. La alternativa de robustez es restringir a jugadores con 450 minutos o más.
+
+\lead{Priors débilmente informativos.} Regularizan sin imponer magnitudes. Todavía no se corrió un análisis de sensibilidad a los priors.
+
+\section{Supuestos y amenazas a la identificación}
+
+\lead{El modelo base es una buena referencia predictiva, pero sus coeficientes de contexto no son efectos causales, y hay ocho amenazas que acotan lo que se puede decir de ellos.} Están ordenadas de mayor a menor peso según mi criterio, y ninguna está resuelta todavía en el base.
+
+{\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{6.0cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+Amenaza & Por qué importa & Qué se hace o se hará \\
+\midrule
+\endfirsthead
+\toprule
+Amenaza & Por qué importa & Qué se hace o se hará \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\alpha_i$ correlacionado con las covariables & Los mejores jugadores tienden a estar en mejores clubes. El coeficiente de contexto mezcla el efecto del entorno con la calidad del jugador y queda sesgado hacia arriba & Efectos aleatorios correlacionados (Mundlak): agregar la media por jugador de las covariables que cambian en el tiempo y comparar el efecto \emph{within} con el \emph{between}. Con 1,9 observaciones por jugador, el \emph{within} es débil \\
+\addlinespace
+Causalidad inversa y selección de club & El valor determina a qué club llega un jugador, así que el contexto es endógeno & No se intenta identificación causal. H1 se presenta como asociación predictiva \\
+\addlinespace
+Shocks comunes & El valor del jugador y el de sus compañeros comparten shocks de club, liga y mercado. El modelo base no incluye efectos de club ni de liga & Efecto de temporada en m03. Un efecto de club queda por discutir \\
+\addlinespace
+Correlación serial en $\varepsilon$ & Con $\rho \approx 0{,}54$ el supuesto de errores independientes falla. Los intervalos de los coeficientes con variación en el tiempo son probablemente demasiado estrechos & Componente autorregresivo o \emph{local level} en m05 \\
+\addlinespace
+Error de medición de la variable dependiente & Las valuaciones son estimaciones de la comunidad, se actualizan a saltos y en escalones & Verosimilitud Student-$t$ como variante de robustez \\
+\addlinespace
+Selección muestral & Sin valuación no hay fila. En 2024 faltan valuaciones por un hueco de la fuente. Estar en primera división ya es selección sobre el valor, lo que atenuaría los efectos de contexto & No imputar. Sensibilidad sin 2024 y \var{rezago_previo} como señal de valuación vieja \\
+\addlinespace
+Edad, período y cohorte & Dentro de un jugador, la edad es la temporada menos el año de nacimiento. Una tendencia temporal constante no se separa de la pendiente de edad & Efecto de temporada con prior suave y suma cero. Solo se puede descartar una aceleración, no una inflación constante \\
+\addlinespace
+Forma funcional y varianza & La desviación de los residuos va de 0,43 a 0,52 según la temporada: hay heterocedasticidad leve. No se revisaron residuos por edad & Revisar residuos por edad y probar errores $t$ \\
+\end{longtable}
+}
+
+\section{Estimación y diagnósticos}
+
+\lead{El modelo se estimó con NUTS y convergió en los parámetros que importan para H1, y los diagnósticos de los residuos muestran dos violaciones del supuesto de errores i.i.d.}
+
+\lead{Estimación.} NUTS (Hoffman y Gelman, 2014) en PyMC con el motor nutpie, parametrización no centrada para $\alpha_i$, $\delta_p$ y $\theta_{pk}$. Corrida final: 4 cadenas, 2.000 pasos de adaptación y 4.000 de muestreo, \var{target_accept} de 0,97, semilla 2026.
+
+\lead{Convergencia.} $\hat{R}$ máximo de 1,006 y ESS \emph{bulk} mínimo de 429, con 13 divergencias en 16.000 pasos (0,08\,\%). El parámetro menos informado es $\sigma_\delta$, la escala de los niveles por posición (ESS 428). Los coeficientes de contexto, rendimiento y atributos tienen ESS de 1.750 o más.
+
+\lead{Residuos.} Por posición promedian cero. Por temporada pasan de $-0{,}10$ en 2016 a $+0{,}14$ en 2025, con desvíos entre 0,43 y 0,52. El patrón sugiere un término temporal omitido. Se generó el gráfico de predictiva posterior, que todavía no revisé.
+
+\lead{Correlación serial (Wooldridge).} Se calcula el residuo sin el efecto del jugador, $u$, y se regresa su primera diferencia sobre la primera diferencia rezagada, sin constante, con error estándar agrupado por jugador. Bajo errores i.i.d., la correlación entre diferencias consecutivas es $-0{,}5$. Si el error sigue un AR(1) estacionario con parámetro $\rho$:
+\begin{equation*}
+\text{pendiente} = -\frac{1-\rho}{2} \quad\Rightarrow\quad \rho = 1 + 2\,\text{pendiente}
+\end{equation*}
+Con 3.434 tripletas de temporadas consecutivas de 2.190 jugadores, la pendiente es $-0{,}232$ (error estándar 0,018), a unos 14,7 errores estándar de $-0{,}5$, lo que implica $\rho \approx 0{,}54$. Hay cuatro límites:
+\begin{enumerate}
+  \item Se aplica a residuos de un modelo de efectos aleatorios con $\alpha_i$ encogido, no a una regresión de efectos fijos en primeras diferencias.
+  \item Si $\alpha_i$ está correlacionado con las covariables, los coeficientes estimados son inconsistentes y parte de la autocorrelación aparente puede venir de ahí.
+  \item La fórmula de $\rho$ supone un AR(1) estacionario.
+  \item Solo participan los jugadores con tres temporadas consecutivas, una submuestra con carreras más largas.
+\end{enumerate}
+
+\lead{Capacidad predictiva.} El LOO por fila no es utilizable: el 17\,\% de las filas tiene Pareto-$k$ mayor a 0,7 y el elpd cambió de $-22.989$ a $-23.469$ entre corridas del mismo modelo. La comparación entre modelos va por validación cruzada agrupada por jugador.
+
+\section{Contraste de H1 y extensiones}
+
+\lead{H1 se contrasta comparando el modelo base con y sin el bloque de contexto, por capacidad predictiva en jugadores apartados.} La hipótesis nula es que el bloque de contexto no aporta, $H_0\colon \gamma = 0$, contra $H_1$: al menos un coeficiente de $\gamma$ es distinto de cero.
+
+\begin{itemize}
+  \item \lead{Criterio principal:} diferencia de elpd entre el modelo completo y el modelo sin contexto, con validación cruzada de $K$ bloques agrupada por \var{player_id} ($K$ por definir, por ejemplo 10). El error estándar de la diferencia se calcula con las diferencias punto a punto. Se considera relevante si $\Delta\text{ELPD}$ supera 2 veces su error estándar.
+  \item \lead{Qué mide:} si el contexto mejora la predicción del valor de jugadores que el modelo no vio. Es la lectura bayesiana del test de razón de verosimilitud, y encaja con el planteo de asociación y no de causalidad.
+  \item \lead{Complementos:} posterior de cada coeficiente de contexto, incremento de varianza explicada y el LRT clásico en un modelo mixto (\texttt{statsmodels}) como chequeo.
+  \item \lead{Misma muestra:} todas las comparaciones usan exactamente las mismas filas, y las variantes con submuestra (reputación del vendedor, 2017--2025) comparan contra el base corrido en esa submuestra.
+\end{itemize}
+
+\lead{Extensiones previstas}, cada una cambia una sola pieza del modelo base:
+
+{\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{7.2cm}>{\raggedright\arraybackslash}p{4.5cm}@{}}
+\toprule
+Modelo & Especificación formal & Motivo \\
+\midrule
+\endfirsthead
+\toprule
+Modelo & Especificación formal & Motivo \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+m03: temporada & Se suma $\gamma_t$, un camino aleatorio $\gamma_t = \gamma_{t-1} + \eta_t$, con $\eta_t \sim N(0, \sigma_\eta^2)$, $\sigma_\eta \sim$ HalfNormal con escala 0,1 y suma cero. Variantes sin 2019--2020 y sin 2024, y dummy de 2021 solo si los residuos la piden & Tendencia de residuos de $-0{,}10$ a $+0{,}14$ \\
+\addlinespace
+m04: porteros & Con y sin porteros, y variante con coeficientes de rendimiento y efecto de temporada por posición & N chico de porteros (831 filas), encogimiento en lugar de modelos separados \\
+\addlinespace
+m05: memoria & Errores AR(1) con $\varepsilon_{it} = \rho\,\varepsilon_{i,t-1} + \nu_{it}$, o \emph{local level}, en carrera completa. El valor previo del año anterior como regresor solo como variante, por el sesgo de Nickell & $\rho \approx 0{,}54$ \\
+\addlinespace
+Errores $t$ & $\varepsilon_{it} \sim$ Student-$t$ con $\nu \sim \text{Gamma}(\alpha = 2, \beta = 0{,}1)$ & Valuaciones en escalones y colas pesadas \\
+\addlinespace
+m06: reputación del vendedor & Se suma \var{reputacion_vendedor} en 2017--2025, con el base en la misma submuestra & Aporte propio del club de origen \\
+\end{longtable}
+}
+
+La variante con el valor previo como regresor tiene un problema conocido: con efecto de jugador y pocas temporadas, el rezago de la variable dependiente queda correlacionado con $\alpha_i$ y el coeficiente sale sesgado (sesgo de Nickell). Por eso propongo priorizar los errores con memoria, aunque el plan original tenía el rezago como primera variante. En ambos casos hay jugadores con huecos entre temporadas, que habrá que tratar.
+
+\end{document}
