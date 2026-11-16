@@ -30,6 +30,12 @@ compara contra el modelo sin esa variable, para ver cuanto del delta de H1 aport
 Ojo: companieros_valor_promedio puede reflejar calidad no observada del jugador (el
 club grande ficha a los buenos), no solo contexto.
 
+BASE SIN VARIABLES (16/11/2026): `--base-sin-variables companieros_valor_promedio` saca esa(s) variable(s)
+de contexto (y su promedio de Mundlak) de TODOS los modelos, incluido el "completo". Sirve para repetir H1 o
+el efecto dentro (`--quitar ctx ctx_dentro`) sin la variable con fuga.
+EXTENSION (16/11/2026): `--extension min_x_rend` agrega a TODOS los modelos las columnas de extension de nl04
+(p. ej. pocos_minutos x rendimiento), para ver si H1 cambia con la interaccion de minutos en la base.
+
 NOTAS: (1) la estandarizacion de covariables se hizo con toda la muestra
 (preparar_datos de m02); es un detalle menor: no usa y. (2) Solo
 verosimilitud normal. (3) Para sacar un bloque se reemplaza por una columna de
@@ -263,6 +269,10 @@ def main(argv=None):
                         help="Bloques a sacar, uno por modelo de comparacion (por defecto: ctx = contexto, el de H1).")
     parser.add_argument("--quitar-variable", nargs="+", default=[], dest="quitar_variable",
                         help="Variables de contexto a sacar de a una (ej. companieros_valor_promedio).")
+    parser.add_argument("--base-sin-variables", nargs="+", default=[], dest="base_sin_variables",
+                        help="Variables de contexto que se sacan de TODOS los modelos (tambien del completo).")
+    parser.add_argument("--extension", nargs="+", default=[], dest="extension",
+                        help="Paquetes de extension de nl04 que se agregan a TODOS los modelos (ej. min_x_rend).")
     parser.add_argument("--temporada", choices=["ninguno", "rw"], default="ninguno")
     parser.add_argument("--grado-edad", type=int, default=2)
     parser.add_argument("--mundlak", action="store_true",
@@ -288,7 +298,9 @@ def main(argv=None):
         raise SystemExit("--quitar ctx_dentro requiere --mundlak (sin promedios, equivale a --quitar ctx).")
     k = args.k or (3 if args.rapido else 5)
     etiqueta = args.etiqueta or f"h1_{args.temporada}_k{k}" + ("_mun" if args.mundlak else "") \
-        + ("_sin" + "_".join(map(str, args.excluir_temporadas)) if args.excluir_temporadas else "")
+        + ("_sin" + "_".join(map(str, args.excluir_temporadas)) if args.excluir_temporadas else "") \
+        + ("_base_sin_" + "_".join(args.base_sin_variables) if args.base_sin_variables else "") \
+        + ("_ext_" + "_".join(args.extension) if args.extension else "")
     ruta_reports = config.ruta_reports_script(Path(__file__).stem)
 
     d, meta = m02.preparar_datos(e08.cargar_dataset_modelado())
@@ -299,6 +311,18 @@ def main(argv=None):
         d, meta, mascara = filtrar_temporadas(d, meta, args.excluir_temporadas)
         ids_fila = ids_fila[mascara]
         print(f"Sin las temporadas {args.excluir_temporadas}: quedan {int(mascara.sum())} filas y {meta['n_jugadores']} jugadores.")
+    for v in args.base_sin_variables:
+        d = quitar_variable(d, meta, v)
+        print(f"Base sin {v}: la variable (y su promedio de Mundlak) queda en cero en todos los modelos.")
+    if args.extension:
+        sys.path.insert(0, str(_RAIZ_SCRIPTS / "modelo_no_lineal"))
+        import nl04_extensiones_bayesianas as nl04
+        invalidos = [p for p in args.extension if p not in nl04.PAQUETES]
+        if invalidos:
+            raise SystemExit(f"Paquetes de extension no validos: {invalidos}. Opciones: {list(nl04.PAQUETES)}")
+        X_ext, nombres_ext = nl04.construir_extensiones(d, meta, args.extension)
+        d = nl04.con_extension(d, X_ext)
+        print(f"Extension en todos los modelos: {len(nombres_ext)} columnas ({', '.join(args.extension)}).")
     ids_jugadores = np.unique(ids_fila)  # mismo orden que el indice de jugadores (np.unique en preparar_datos/subconjunto)
     pliegue_fila = asignar_pliegues(d["jug_idx"], k)
     modelos = {"completo": d, **{f"sin_{b}": quitar_bloque(d, b, meta) for b in args.quitar},
