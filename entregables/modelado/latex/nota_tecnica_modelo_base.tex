@@ -21,7 +21,7 @@
 
 \title{Nota técnica: fundamento econométrico del modelo base}
 \author{Gianfranco Ganicoche}
-\date{1 de noviembre de 2026}
+\date{16 de noviembre de 2026}
 
 \begin{document}
 \maketitle
@@ -33,14 +33,14 @@
 \begin{itemize}
   \item \lead{Qué afirma:} asociaciones entre el log del valor de mercado y la edad, el contexto del club, el rendimiento y atributos del jugador, descontada una heterogeneidad inobservada y persistente de cada jugador.
   \item \lead{Qué no afirma:} causalidad (los jugadores no se asignan al azar a los clubes), ni nada sobre edades fuera de 15--23 años, ni sobre jugadores sin valuación observada.
-  \item \lead{Los tres supuestos que más pesan:} que el efecto del jugador no se correlacione con las covariables (probablemente falso para el contexto), que los errores sean independientes en el tiempo (la evidencia dice que no, $\rho \approx 0{,}54$) y que la muestra observada no esté seleccionada de forma grave.
+  \item \lead{Los tres supuestos que más pesan:} que el efecto del jugador no se correlacione con las covariables (probablemente falso para el contexto, por eso las corridas de H1 incluyen las medias por jugador de Mundlak), que los errores sean independientes en el tiempo (la evidencia dice que no, $\rho \approx 0{,}54$) y que la muestra observada no esté seleccionada de forma grave.
 \end{itemize}
 
-Las secciones 5 y 6 detallan cómo se tratan estos supuestos y qué queda pendiente.
+Las secciones 5 y 6 detallan cómo se tratan estos supuestos, y la sección 7 resume los resultados de H1 y de las pruebas de robustez al 16 de noviembre.
 
 \section{Datos y unidad de análisis}
 
-\lead{La muestra es un panel desbalanceado y corto: 10.388 jugadores observados en 19.344 jugador-temporada, 1,9 observaciones por jugador en promedio.} El índice $i$ es el jugador y $t$ la temporada (2013--2025). El ancho temporal limita cuánta variación \emph{within} hay para identificar efectos que cambian en el tiempo.
+\lead{La muestra es un panel desbalanceado y corto: 10.388 jugadores observados en 19.344 jugador-temporada, 1,9 observaciones por jugador en promedio.} El índice $i$ es el jugador y $t$ la temporada (2013--2025). Los datos de valor empiezan en 2012, pero la tabla de formaciones empieza en 2013, de modo que las filas de 2012 no tienen posición y salen de la muestra. El ancho temporal limita cuánta variación \emph{within} hay para identificar efectos que cambian en el tiempo.
 
 \begin{center}
 \begin{tabular}{@{}lrr@{}}
@@ -57,7 +57,7 @@ Sin faltantes en contexto, altura, pie y condición de comunitario & 19.344 & 10
 
 \begin{itemize}
   \item \lead{Variable dependiente:} logaritmo del valor de mercado en euros (Transfermarkt), centrado en su media muestral. Para cada jugador-temporada se usa la última valuación registrada en la temporada, que es la regla general del panel.
-  \item \lead{Covariables de contexto (4):} \var{pca_exito_deportivo}, \var{companieros_valor_promedio}, \var{formaciones_distintas} y \var{fase_maxima_alcanzada}, estandarizadas con la media y el desvío de la muestra del modelo.
+  \item \lead{Covariables de contexto (4):} \var{pca_exito_deportivo}, \var{companieros_valor_promedio}, \var{formaciones_distintas} y \var{fase_maxima_alcanzada}, estandarizadas con la media y el desvío de la muestra del modelo. \var{companieros_valor_promedio} es el promedio, sin contar al jugador, del valor de sus compañeros de plantel en la misma temporada. Eso la ata mecánicamente al valor del propio jugador (``fuga''); la sección 7 muestra cuánto pesa y qué pasa con H1 sin ella.
   \item \lead{Rendimiento (10 columnas):} seis z-scores (goles, asistencias, participación en producción, goles recibidos ajustados, edad de debut y amarillas por 90 minutos), una dummy de roja, el indicador de pocos minutos (menos de 450) y dos indicadores de faltante propios.
   \item \lead{Atributos (4):} altura (estandarizada), condición de comunitario y dos dummies de pie hábil.
   \item \lead{Posición:} cuatro categorías (arquero, defensor, delantero, mediocampista), la predominante de cada jugador-temporada.
@@ -78,7 +78,7 @@ y_{it} = \mu + \delta_{p_{it}} + \sum_{k=1}^{2} \left(\beta_k + \theta_{p_{it}k}
 
 \begin{itemize}
   \item $\boldsymbol{y_{it}}$\textbf{:} log del valor de mercado, centrado en su media muestral.
-  \item $\boldsymbol{x_{it}=(\text{edad}-20)/2}$\textbf{:} edad reescalada. Con $k=1,2$ es un polinomio de grado 2.
+  \item $\boldsymbol{x_{it}=(\text{edad}-20)/2}$\textbf{:} edad reescalada. Con $k=1,2$ es un polinomio de grado 2. El centro en 20 años es solo una parametrización (el punto medio de 15--23 sería 19): cambiarlo no altera el ajuste, solo el significado del intercepto.
   \item $\boldsymbol{\delta_p}$\textbf{:} nivel de cada posición $p$, con suma cero. $\boldsymbol{\theta_{pk}}$\textbf{:} desvío de cada posición respecto de la curva de edad común ($\beta_1$, $\beta_2$), encogido hacia cero.
   \item $\boldsymbol{z}$ (4), $\boldsymbol{r}$ (10), $\boldsymbol{w}$ (4)\textbf{:} contexto, rendimiento y atributos, con coeficientes $\gamma$, $\psi$ y $\varphi$.
   \item $\boldsymbol{\alpha_i}$\textbf{:} efecto aleatorio del jugador. $\boldsymbol{\varepsilon_{it}}$\textbf{:} error idiosincrático, supuesto i.i.d.\ normal.
@@ -119,7 +119,7 @@ $\alpha_i,\ \theta_{pk},\ \delta_p$ & Parametrización no centrada & Se estima u
 
 \section{Supuestos y amenazas a la identificación}
 
-\lead{El modelo base es una buena referencia predictiva, pero sus coeficientes de contexto no son efectos causales, y hay ocho amenazas que acotan lo que se puede decir de ellos.} Están ordenadas de mayor a menor peso según mi criterio, y ninguna está resuelta todavía en el base.
+\lead{El modelo base es una buena referencia predictiva, pero sus coeficientes de contexto no son efectos causales, y hay nueve amenazas que acotan lo que se puede decir de ellos.} Están ordenadas de mayor a menor peso según mi criterio. Mundlak y el efecto de temporada ya se incorporaron en las corridas de H1; el resto sigue pendiente.
 
 {\small
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{6.0cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
@@ -133,11 +133,11 @@ Amenaza & Por qué importa & Qué se hace o se hará \\
 \endhead
 \bottomrule
 \endfoot
-$\alpha_i$ correlacionado con las covariables & Los mejores jugadores tienden a estar en mejores clubes. El coeficiente de contexto mezcla el efecto del entorno con la calidad del jugador y queda sesgado hacia arriba & Efectos aleatorios correlacionados (Mundlak): agregar la media por jugador de las covariables que cambian en el tiempo y comparar el efecto \emph{within} con el \emph{between}. Con 1,9 observaciones por jugador, el \emph{within} es débil \\
+$\alpha_i$ correlacionado con las covariables & Los mejores jugadores tienden a estar en mejores clubes. El coeficiente de contexto mezcla el efecto del entorno con la calidad del jugador y queda sesgado hacia arriba & Efectos aleatorios correlacionados (Mundlak): se agrega la media por jugador de las covariables que cambian en el tiempo, y el efecto \emph{within} se compara con el \emph{between}. Ya está en las corridas de H1 (sección 7). Con 1,9 observaciones por jugador, el \emph{within} es débil \\
 \addlinespace
 Causalidad inversa y selección de club & El valor determina a qué club llega un jugador, así que el contexto es endógeno & No se intenta identificación causal. H1 se presenta como asociación predictiva \\
 \addlinespace
-Shocks comunes & El valor del jugador y el de sus compañeros comparten shocks de club, liga y mercado. El modelo base no incluye efectos de club ni de liga & Efecto de temporada en m03. Un efecto de club queda por discutir \\
+Shocks comunes & El valor del jugador y el de sus compañeros comparten shocks de club, liga y mercado. El modelo base no incluye efectos de club ni de liga & Efecto de temporada (camino aleatorio) en el contraste de H1. Un efecto de club queda por discutir \\
 \addlinespace
 Correlación serial en $\varepsilon$ & Con $\rho \approx 0{,}54$ el supuesto de errores independientes falla. Los intervalos de los coeficientes con variación en el tiempo son probablemente demasiado estrechos & Componente autorregresivo o \emph{local level} en m05 \\
 \addlinespace
@@ -145,7 +145,9 @@ Error de medición de la variable dependiente & Las valuaciones son estimaciones
 \addlinespace
 Selección muestral & Sin valuación no hay fila. En 2024 faltan valuaciones por un hueco de la fuente. Estar en primera división ya es selección sobre el valor, lo que atenuaría los efectos de contexto & No imputar. Sensibilidad sin 2024 y \var{rezago_previo} como señal de valuación vieja \\
 \addlinespace
-Edad, período y cohorte & Dentro de un jugador, la edad es la temporada menos el año de nacimiento. Una tendencia temporal constante no se separa de la pendiente de edad & Efecto de temporada con prior suave y suma cero. Solo se puede descartar una aceleración, no una inflación constante \\
+Edad, período y cohorte & Dentro de un jugador, la edad es la temporada menos el año de nacimiento. Una tendencia temporal constante no se separa de la pendiente de edad & Efecto de temporada con prior suave y suma cero, tratado como control de tendencia. Su magnitud (unos 7\,\% por año) no se interpreta como inflación: no se separa de la composición de la muestra ni de la colinealidad edad--período--cohorte. Solo se puede descartar una aceleración \\
+\addlinespace
+Fuga en la variable de compañeros & Se calcula con el valor de los otros jugadores del plantel en la misma temporada, así que queda atada al valor del propio jugador. El efecto \emph{between} (0,82) es mucho mayor que el \emph{within} (0,22) y un boosting la aprovecha & H1 se repite sin ella (sección 7). Pendiente: reconstruirla con el valor del plantel de la temporada anterior, sin contar al jugador \\
 \addlinespace
 Forma funcional y varianza & La desviación de los residuos va de 0,43 a 0,52 según la temporada: hay heterocedasticidad leve. No se revisaron residuos por edad & Revisar residuos por edad y probar errores $t$ \\
 \end{longtable}
@@ -165,7 +167,7 @@ Forma funcional y varianza & La desviación de los residuos va de 0,43 a 0,52 se
 \begin{equation*}
 \text{pendiente} = -\frac{1-\rho}{2} \quad\Rightarrow\quad \rho = 1 + 2\,\text{pendiente}
 \end{equation*}
-Con 3.434 tripletas de temporadas consecutivas de 2.190 jugadores, la pendiente es $-0{,}232$ (error estándar 0,018), a unos 14,7 errores estándar de $-0{,}5$, lo que implica $\rho \approx 0{,}54$. Hay cuatro límites:
+Con 3.434 tripletas de temporadas consecutivas de 2.190 jugadores, la pendiente es $-0{,}232$ (error estándar 0,018), a unos 14,7 errores estándar de $-0{,}5$, lo que implica $\rho \approx 0{,}54$. Con las medias de Mundlak en el modelo, el cálculo da un valor mayor ($\rho \approx 0{,}73$), que todavía no logré explicar y que trato como provisional. Hay cuatro límites:
 \begin{enumerate}
   \item Se aplica a residuos de un modelo de efectos aleatorios con $\alpha_i$ encogido, no a una regresión de efectos fijos en primeras diferencias.
   \item Si $\alpha_i$ está correlacionado con las covariables, los coeficientes estimados son inconsistentes y parte de la autocorrelación aparente puede venir de ahí.
@@ -180,7 +182,7 @@ Con 3.434 tripletas de temporadas consecutivas de 2.190 jugadores, la pendiente 
 \lead{H1 se contrasta comparando el modelo base con y sin el bloque de contexto, por capacidad predictiva en jugadores apartados.} La hipótesis nula es que el bloque de contexto no aporta, $H_0\colon \gamma = 0$, contra $H_1$: al menos un coeficiente de $\gamma$ es distinto de cero.
 
 \begin{itemize}
-  \item \lead{Criterio principal:} diferencia de elpd entre el modelo completo y el modelo sin contexto, con validación cruzada de $K$ bloques agrupada por \var{player_id} ($K$ por definir, por ejemplo 10). El error estándar de la diferencia se calcula con las diferencias punto a punto. Se considera relevante si $\Delta\text{ELPD}$ supera 2 veces su error estándar.
+  \item \lead{Criterio principal:} diferencia de elpd entre el modelo completo y el modelo sin contexto, con validación cruzada de $K=5$ bloques agrupada por \var{player_id}. El error estándar de la diferencia se calcula con las diferencias punto a punto. Se considera relevante si $\Delta\text{ELPD}$ supera 2 veces su error estándar.
   \item \lead{Qué mide:} si el contexto mejora la predicción del valor de jugadores que el modelo no vio. Es la lectura bayesiana del test de razón de verosimilitud, y encaja con el planteo de asociación y no de causalidad.
   \item \lead{Complementos:} posterior de cada coeficiente de contexto, incremento de varianza explicada y el LRT clásico en un modelo mixto (\texttt{statsmodels}) como chequeo.
   \item \lead{Misma muestra:} todas las comparaciones usan exactamente las mismas filas, y las variantes con submuestra (reputación del vendedor, 2017--2025) comparan contra el base corrido en esa submuestra.
@@ -200,7 +202,7 @@ Modelo & Especificación formal & Motivo \\
 \endhead
 \bottomrule
 \endfoot
-m03: temporada & Se suma $\gamma_t$, un camino aleatorio $\gamma_t = \gamma_{t-1} + \eta_t$, con $\eta_t \sim N(0, \sigma_\eta^2)$, $\sigma_\eta \sim$ HalfNormal con escala 0,1 y suma cero. Variantes sin 2019--2020 y sin 2024, y dummy de 2021 solo si los residuos la piden & Tendencia de residuos de $-0{,}10$ a $+0{,}14$ \\
+m03: contraste H1 con temporada & Se suma $\gamma_t$, un camino aleatorio $\gamma_t = \gamma_{t-1} + \eta_t$, con $\eta_t \sim N(0, \sigma_\eta^2)$, $\sigma_\eta \sim$ HalfNormal con escala 0,1 y suma cero. Variantes sin 2019--2020, sin 2021, sin 2024 y sin 2019--2021 (opción \texttt{--temporada rw} del script m03) & Tendencia de residuos de $-0{,}10$ a $+0{,}14$; control de tendencia, no medida de inflación \\
 \addlinespace
 m04: porteros & Con y sin porteros, y variante con coeficientes de rendimiento y efecto de temporada por posición & N chico de porteros (831 filas), encogimiento en lugar de modelos separados \\
 \addlinespace
@@ -213,5 +215,39 @@ m06: reputación del vendedor & Se suma \var{reputacion_vendedor} en 2017--2025,
 }
 
 La variante con el valor previo como regresor tiene un problema conocido: con efecto de jugador y pocas temporadas, el rezago de la variable dependiente queda correlacionado con $\alpha_i$ y el coeficiente sale sesgado (sesgo de Nickell). Por eso propongo priorizar los errores con memoria, aunque el plan original tenía el rezago como primera variante. En ambos casos hay jugadores con huecos entre temporadas, que habrá que tratar.
+
+
+\section{Resultados al 16 de noviembre}
+
+\lead{H1 se sostiene en todas las variantes: el contexto mejora la predicción de jugadores nuevos por más de 30 errores estándar con todos los datos, y su efecto dentro del jugador sigue siendo claro aun sin la variable de compañeros.} Todas las corridas usan Mundlak, camino aleatorio para la temporada y $K=5$. La diferencia es $\Delta$ELPD $=$ modelo completo $-$ modelo sin contexto (o sin el bloque indicado); el error estándar es aproximado porque la convergencia no es perfecta ($\hat R$ hasta 1,04--1,07 y ESS desde 76 en alguna corrida). Los valores absolutos no son comparables entre muestras distintas.
+
+\lead{Aporte del contexto, con todas las variables.} Total $+2.896$ (error estándar 80; 36 errores estándar) y dentro del jugador $+556$ (40; 14). Sin Mundlak, el total baja a $+2.081$, de los cuales $1.140$ corresponden solo a la variable de compañeros.
+
+\lead{Sin la variable de compañeros y con la interacción de minutos.} Lo muestra la tabla siguiente. Sacar compañeros baja el aporte total a menos de la mitad, y el efecto dentro del jugador pasa de 19\,\% a 23\,\% del total.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Especificación & Total & (EE) & Dentro & (EE) \\
+\midrule
+Base completa & $+2.896$ & 80 & $+556$ & 40 \\
+Con interacción de minutos & $+3.103$ & 83 & $+670$ & 43 \\
+Sin compañeros & $+1.315$ & 55 & $+303$ & 29 \\
+Sin compañeros, con interacción (base v2) & $+1.482$ & 58 & $+400$ & 33 \\
+Compañeros sin fuga, con interacción & $+3.091$ & 83 & $+645$ & 42 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\lead{Compañeros sin fuga.} La variable se reconstruyó como el promedio del valor del plantel de la temporada anterior, sin contar al jugador (19.159 filas, 10.305 jugadores; 92\,\% de cobertura en el panel de valuaciones). Con ella el aporte del contexto es prácticamente el mismo que con la variable original, tanto en total como dentro del jugador, de modo que la fuga mecánica no explica el resultado de H1. Sigue siendo una asociación: el valor del plantel refleja calidad del club, parecida a la del jugador. La convergencia es imperfecta ($\hat R$ hasta 1,07; ESS desde 65; 18 divergencias en un pliegue del modelo sin contexto).
+
+\lead{Robustez por temporadas} (base completa, total; EE entre paréntesis): sin 2019--2020 $+2.472$ (71), sin 2021 $+2.773$ (76), sin 2024 $+2.706$ (78), sin 2019--2021 $+2.261$ (66). El efecto dentro del jugador, donde se calculó, es $+374$ sin 2019--2020 y $+523$ sin 2024. La temporada 2021 tiene una anomalía de datos (faltan filas de pocos minutos), por eso se probó aparte.
+
+\lead{Interacción de minutos.} Permitir que el efecto del rendimiento sea distinto con menos de 450 minutos mejora la predicción de jugadores nuevos en $+591$ (error estándar 37) con la variable de compañeros, y en $+551$ sin ella. En el ajuste con todos los datos, la participación en producción tiene pendiente $+0{,}30$ con 450 minutos o más y $-0{,}55$ con menos (por desvío estándar, en log del valor); goles y asistencias son pequeñas y colineales con ella, y sumadas dan alrededor de $+0{,}16$ contra $-0{,}41$. El modelo base promedia efectos de signo contrario. El signo negativo con pocos minutos no está explicado: el ruido de medición atenuaría hacia cero, no invertiría el signo. Pendiente revisar la relación cruda antes de incluir la interacción.
+
+\lead{Tendencia temporal.} La suba de unos 7\,\% por año del efecto de temporada no se interpreta como inflación. En el análisis de octubre, la suba total ajustada por edad es de $+4{,}2$\,\% por año, que se descompone en $-1{,}1$ dentro de los jugadores y $+5{,}3$ por recambio de la muestra, con la salvedad de que el perfil por edad transversal está sesgado por supervivencia. Además, edad, período y cohorte son colineales. El efecto de temporada es un control de tendencia.
+
+\lead{Pendientes.} (i) decidir si la variable de compañeros sin fuga reemplaza a la original en el modelo principal; (ii) decidir si la interacción de minutos entra al modelo principal y cómo se tratan los faltantes; (iii) calcular el efecto dentro del jugador para las variantes sin 2021 y sin 2019--2021; (iv) explicar $\rho \approx 0{,}73$ con Mundlak.
 
 \end{document}

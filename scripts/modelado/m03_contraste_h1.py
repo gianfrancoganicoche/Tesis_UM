@@ -46,6 +46,10 @@ SALIDAS:
     reports/m03_contraste_h1/<etiqueta>_comparacion.csv
     reports/m03_contraste_h1/<etiqueta>_convergencia_pliegues.csv
 
+SIN FUGA: `--companieros-previo` usa el promedio del plantel de la temporada ANTERIOR (sin contar al
+jugador) en lugar del de la misma temporada. Requiere correr antes d10_construir_companieros_previo.py.
+Ej.: uv run scripts/modelado/m03_contraste_h1.py --companieros-previo --mundlak --temporada rw --extension min_x_rend
+
 USO (una variable): uv run scripts/modelado/m03_contraste_h1.py --quitar-variable companieros_valor_promedio --temporada rw --etiqueta h1_rw_var
 
 USO:
@@ -273,6 +277,9 @@ def main(argv=None):
                         help="Variables de contexto que se sacan de TODOS los modelos (tambien del completo).")
     parser.add_argument("--extension", nargs="+", default=[], dest="extension",
                         help="Paquetes de extension de nl04 que se agregan a TODOS los modelos (ej. min_x_rend).")
+    parser.add_argument("--companieros-previo", action="store_true", dest="companieros_previo",
+                        help="Reemplaza companieros_valor_promedio por la version sin fuga (plantel de la temporada anterior, "
+                             "d10_construir_companieros_previo.py). La muestra pierde las filas sin esa variable.")
     parser.add_argument("--temporada", choices=["ninguno", "rw"], default="ninguno")
     parser.add_argument("--grado-edad", type=int, default=2)
     parser.add_argument("--mundlak", action="store_true",
@@ -300,10 +307,22 @@ def main(argv=None):
     etiqueta = args.etiqueta or f"h1_{args.temporada}_k{k}" + ("_mun" if args.mundlak else "") \
         + ("_sin" + "_".join(map(str, args.excluir_temporadas)) if args.excluir_temporadas else "") \
         + ("_base_sin_" + "_".join(args.base_sin_variables) if args.base_sin_variables else "") \
-        + ("_ext_" + "_".join(args.extension) if args.extension else "")
+        + ("_ext_" + "_".join(args.extension) if args.extension else "") \
+        + ("_comp_prev" if args.companieros_previo else "")
     ruta_reports = config.ruta_reports_script(Path(__file__).stem)
 
-    d, meta = m02.preparar_datos(e08.cargar_dataset_modelado())
+    dataset = e08.cargar_dataset_modelado()
+    if args.companieros_previo:
+        candidatos = sorted(config.RUTA_DATOS_PROCESSED.glob("companieros_previo_*.csv"))
+        if not candidatos:
+            raise SystemExit("No hay data/processed/companieros_previo_*.csv: correr scripts/dataset/d10_construir_companieros_previo.py.")
+        previo = pd.read_csv(candidatos[-1])
+        print(f"Companieros sin fuga: {candidatos[-1].name}")
+        dataset = dataset.rename(columns={"companieros_valor_promedio": "companieros_valor_promedio_misma_temp"})
+        dataset = dataset.merge(previo[["player_id", "season", "companieros_valor_previo"]],
+                                on=["player_id", "season"], how="left")
+        dataset["companieros_valor_promedio"] = dataset["companieros_valor_previo"]
+    d, meta = m02.preparar_datos(dataset)
     if meta.get("cols_mun_excluidas"):
         print(f"Mundlak: columnas excluidas del Mundlak: {meta['cols_mun_excluidas']}")
     ids_fila = d["df"]["player_id"].to_numpy()
